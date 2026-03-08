@@ -37,6 +37,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     // This bypasses SDK node-selection / retry logic and gives us
     // the raw response body for better error diagnosis.
     const cfg = getConfigFromRequest(request);
+    if (!cfg) return NextResponse.json({ error: "No Typesense connection configured" }, { status: 401 });
     const tsUrl = `${cfg.protocol}://${cfg.host}:${cfg.port}/collections/${encodeURIComponent(name)}/synonyms/${encodeURIComponent(synonymId)}`;
 
     const tsRes = await fetch(tsUrl, {

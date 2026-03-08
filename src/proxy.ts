@@ -14,8 +14,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const hasConnection =
-    request.cookies.has(COOKIE_NAME) || !!process.env.TYPESENSE_API_KEY;
+  const hasConnection = request.cookies.has(COOKIE_NAME);
 
   const isPublic = PUBLIC_ROUTES.includes(pathname);
 

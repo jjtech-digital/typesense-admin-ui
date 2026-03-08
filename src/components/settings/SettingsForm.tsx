@@ -9,7 +9,6 @@ import {
   EyeOff,
   Save,
   RefreshCw,
-  Server,
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/Button";
@@ -18,18 +17,7 @@ import { Select } from "@/components/ui/Select";
 import { useToast } from "@/components/ui/Toast";
 import { useConnectionConfig } from "@/hooks/useConnectionConfig";
 
-interface ServerEnv {
-  host: string | null;
-  port: string | null;
-  protocol: string | null;
-  hasApiKey: boolean;
-}
-
-interface Props {
-  serverEnv: ServerEnv;
-}
-
-export function SettingsForm({ serverEnv }: Props) {
+export function SettingsForm() {
   const { getConfig, saveConfig, clearConfig } = useConnectionConfig();
 
   const [host, setHost] = useState("localhost");
@@ -103,7 +91,6 @@ export function SettingsForm({ serverEnv }: Props) {
   };
 
   const handleReset = () => {
-    // clearConfig removes both the session cookie AND the localStorage saved config
     clearConfig();
     setHost("localhost");
     setPort("8108");
@@ -119,17 +106,6 @@ export function SettingsForm({ serverEnv }: Props) {
     success: "text-green-600",
     error: "text-red-600",
   };
-
-  const envRows: { label: string; value: string | null; fallback: string }[] = [
-    { label: "TYPESENSE_HOST", value: serverEnv.host, fallback: "localhost" },
-    { label: "TYPESENSE_PORT", value: serverEnv.port, fallback: "8108" },
-    { label: "TYPESENSE_PROTOCOL", value: serverEnv.protocol, fallback: "http" },
-    {
-      label: "TYPESENSE_API_KEY",
-      value: serverEnv.hasApiKey ? "••••••••" : null,
-      fallback: "(not set)",
-    },
-  ];
 
   return (
     <div>
@@ -251,65 +227,18 @@ export function SettingsForm({ serverEnv }: Props) {
           </div>
         </div>
 
-        {/* Server-side env info */}
+        {/* Info box */}
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 sm:p-6">
           <h3 className="text-sm font-semibold text-blue-900 mb-2">
-            Server-Side Configuration
+            How It Works
           </h3>
-          <p className="text-sm text-blue-700 mb-3">
-            For production deployments, configure via environment variables in{" "}
-            <code className="bg-blue-100 px-1 rounded font-mono text-xs">
-              .env.local
-            </code>
-            :
+          <p className="text-sm text-blue-700">
+            Your connection settings are stored securely in your browser (cookie + localStorage).
+            They are never sent to any third-party server — all API calls go directly from your
+            browser to your Typesense server or through this app&apos;s API proxy.
           </p>
-          <div className="bg-blue-900 rounded-lg p-4 font-mono text-xs text-blue-100 space-y-1">
-            <p>TYPESENSE_HOST=localhost</p>
-            <p>TYPESENSE_PORT=8108</p>
-            <p>TYPESENSE_PROTOCOL=http</p>
-            <p>TYPESENSE_API_KEY=your-api-key-here</p>
-          </div>
           <p className="text-xs text-blue-600 mt-2">
-            Settings saved in this UI override environment variables via a
-            browser cookie.
-          </p>
-        </div>
-
-        {/* Current env config — values come from the server */}
-        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Server className="h-4 w-4 text-gray-500" />
-            <h3 className="text-sm font-semibold text-gray-700">
-              Current Environment Configuration
-            </h3>
-          </div>
-          <div className="space-y-2 text-sm overflow-x-auto">
-            {envRows.map(({ label, value, fallback }) => (
-              <div key={label} className="flex items-center gap-3">
-                <code className="font-mono text-xs text-gray-500 w-48 shrink-0">
-                  {label}
-                </code>
-                <span className="text-gray-400">→</span>
-                {value !== null ? (
-                  <span className="font-mono text-xs text-gray-900 bg-gray-50 px-2 py-0.5 rounded border border-gray-200">
-                    {value}
-                  </span>
-                ) : (
-                  <>
-                    <span className="font-mono text-xs text-gray-400 bg-gray-50 px-2 py-0.5 rounded border border-dashed border-gray-200">
-                      {fallback}
-                    </span>
-                    <span className="text-xs text-gray-400">(default)</span>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-          <p className="text-xs text-gray-400 mt-3">
-            Copy{" "}
-            <code className="bg-gray-50 px-1 rounded">.env.local.example</code>{" "}
-            to <code className="bg-gray-50 px-1 rounded">.env.local</code> and
-            set your values.
+            Credentials are remembered for 30 days. Use <strong>Reset</strong> to clear all saved credentials from this browser.
           </p>
         </div>
       </div>

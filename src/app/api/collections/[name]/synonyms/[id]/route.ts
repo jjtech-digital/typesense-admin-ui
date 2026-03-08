@@ -27,6 +27,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     const cfg = getConfigFromRequest(request);
+    if (!cfg) return NextResponse.json({ error: "No Typesense connection configured" }, { status: 401 });
     const tsUrl = `${cfg.protocol}://${cfg.host}:${cfg.port}/collections/${encodeURIComponent(name)}/synonyms/${encodeURIComponent(id)}`;
 
     const tsRes = await fetch(tsUrl, {

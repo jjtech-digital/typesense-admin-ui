@@ -10,10 +10,7 @@ import {
   Zap,
 } from "lucide-react";
 import { cookies } from "next/headers";
-import {
-  getTypesenseClient,
-  getTypesenseClientFromConfig,
-} from "@/lib/typesense";
+import { getTypesenseClientFromConfig } from "@/lib/typesense";
 import {
   formatNumber,
   CONNECTION_CONFIG_COOKIE,
@@ -22,16 +19,24 @@ import {
 import type { TypesenseCollection } from "@/types/typesense";
 import { Header } from "@/components/layout/Header";
 
-async function getDashboardData() {
+async function getDashboardData(config: {
+  host: string;
+  port: number;
+  protocol: "http" | "https";
+  apiKey: string;
+} | null) {
+  if (!config) {
+    return {
+      health: { ok: false },
+      collections: [] as TypesenseCollection[],
+      totalDocuments: 0,
+      totalKeys: 0,
+      error: "No connection configured",
+    };
+  }
+
   try {
-    const cookieStore = await cookies();
-    const cookieStr = cookieStore.get(CONNECTION_CONFIG_COOKIE)?.value ?? null;
-    const config = getConnectionConfigFromCookies(
-      cookieStr ? decodeURIComponent(cookieStr) : null
-    );
-    const client = config
-      ? getTypesenseClientFromConfig(config)
-      : getTypesenseClient();
+    const client = getTypesenseClientFromConfig(config);
     const [health, collections, keys] = await Promise.allSettled([
       client.health.retrieve(),
       client.collections().retrieve(),
@@ -62,7 +67,7 @@ async function getDashboardData() {
   } catch (error) {
     return {
       health: { ok: false },
-      collections: [],
+      collections: [] as TypesenseCollection[],
       totalDocuments: 0,
       totalKeys: 0,
       error: error instanceof Error ? error.message : "Failed to connect",
@@ -76,12 +81,13 @@ export default async function DashboardPage() {
   const activeConfig = getConnectionConfigFromCookies(
     cookieStr ? decodeURIComponent(cookieStr) : null
   );
-  const displayHost = activeConfig?.host ?? process.env.TYPESENSE_HOST ?? "localhost";
-  const displayPort = activeConfig?.port ?? process.env.TYPESENSE_PORT ?? "8108";
-  const displayProtocol = activeConfig?.protocol ?? process.env.TYPESENSE_PROTOCOL ?? "http";
 
   const { health, collections, totalDocuments, totalKeys, error } =
-    await getDashboardData();
+    await getDashboardData(activeConfig);
+
+  const displayHost = activeConfig?.host ?? "—";
+  const displayPort = activeConfig?.port ?? "—";
+  const displayProtocol = activeConfig?.protocol ?? "—";
 
   const stats = [
     {
@@ -297,18 +303,27 @@ export default async function DashboardPage() {
               <p className="text-xs font-medium text-gray-500 mb-2">
                 Connection
               </p>
-              <div className="text-xs text-gray-600 space-y-1">
-                <p>
-                  Host:{" "}
-                  <span className="font-mono">
-                    {displayHost}:{displayPort}
-                  </span>
+              {activeConfig ? (
+                <div className="text-xs text-gray-600 space-y-1">
+                  <p>
+                    Host:{" "}
+                    <span className="font-mono">
+                      {displayHost}:{displayPort}
+                    </span>
+                  </p>
+                  <p>
+                    Protocol:{" "}
+                    <span className="font-mono">{displayProtocol}</span>
+                  </p>
+                </div>
+              ) : (
+                <p className="text-xs text-gray-400">
+                  Not connected —{" "}
+                  <Link href="/login" className="text-brand hover:underline">
+                    Log in
+                  </Link>
                 </p>
-                <p>
-                  Protocol:{" "}
-                  <span className="font-mono">{displayProtocol}</span>
-                </p>
-              </div>
+              )}
             </div>
           </div>
         </div>

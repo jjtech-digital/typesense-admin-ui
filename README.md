@@ -13,7 +13,6 @@ A modern, full-featured admin dashboard for [Typesense](https://typesense.org/) 
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
-  - [Environment Variables](#environment-variables)
   - [Running the App](#running-the-app)
 - [Connecting to Typesense](#connecting-to-typesense)
 - [Feature Guide](#feature-guide)
@@ -29,9 +28,9 @@ A modern, full-featured admin dashboard for [Typesense](https://typesense.org/) 
   - [One-Click Deploy](#one-click-deploy)
   - [Deploy via Vercel CLI](#deploy-via-vercel-cli)
   - [Deploy via GitHub Integration](#deploy-via-github-integration)
-  - [Environment Variables on Vercel](#environment-variables-on-vercel)
   - [Custom Domain](#custom-domain)
   - [Vercel Project Settings](#vercel-project-settings)
+- [Self-Hosting](#self-hosting)
 - [Security](#security)
 - [Project Structure](#project-structure)
 - [API Routes](#api-routes)
@@ -50,7 +49,7 @@ A modern, full-featured admin dashboard for [Typesense](https://typesense.org/) 
 - **Synonyms** — Global synonym set management with one-way and multi-way support, bulk upload
 - **Search Overrides** — Curate search results with include/exclude rules and filter conditions
 - **API Key Management** — Create, view, copy, and delete API keys with scoped permissions
-- **Connection Settings** — Configure Typesense connection via UI or environment variables
+- **Connection Settings** — Configure Typesense connection via login page or settings
 - **Session Management** — Auto-logout on idle, remembered credentials, secure client-side storage
 - **Responsive Design** — Mobile-first layout with collapsible sidebar, bottom-sheet modals, adaptive grids
 
@@ -86,34 +85,6 @@ cd typesense-admin-ui
 npm install
 ```
 
-### Environment Variables
-
-Copy the example environment file and configure it:
-
-```bash
-cp .env.local.example .env.local
-```
-
-Edit `.env.local` with your Typesense server details:
-
-```env
-TYPESENSE_HOST=localhost
-TYPESENSE_PORT=8108
-TYPESENSE_PROTOCOL=http
-TYPESENSE_API_KEY=your-api-key-here
-TYPESENSE_CONNECTION_TIMEOUT_SECONDS=5
-```
-
-| Variable | Description | Default |
-|---|---|---|
-| `TYPESENSE_HOST` | Typesense server hostname or IP | `localhost` |
-| `TYPESENSE_PORT` | Typesense server port | `8108` |
-| `TYPESENSE_PROTOCOL` | `http` or `https` | `http` |
-| `TYPESENSE_API_KEY` | Admin API key for your Typesense server | — |
-| `TYPESENSE_CONNECTION_TIMEOUT_SECONDS` | Connection timeout in seconds | `5` |
-
-> **Note:** You can also configure the connection at runtime via the `/settings` page or the `/login` page. Browser-configured credentials are stored in a cookie and take precedence over environment variables.
-
 ### Running the App
 
 ```bash
@@ -130,30 +101,45 @@ npm run lint
 
 The app will be available at [http://localhost:3000](http://localhost:3000).
 
+On first visit you will be redirected to the **Login** page to enter your Typesense server connection details. No server-side environment variables are needed.
+
 ---
 
 ## Connecting to Typesense
 
-There are two ways to connect the admin UI to your Typesense server:
+All connection credentials are configured through the browser — no server-side environment variables required.
 
-### Option 1: Environment Variables (Server-Side)
+### Login Page
 
-Set the `TYPESENSE_*` variables in `.env.local` as described above. The app will use these on startup.
-
-### Option 2: Login Page (Browser-Side)
-
-1. Navigate to `/login`
+1. Navigate to `/login` (you are redirected here automatically if not connected)
 2. Enter your Typesense server's **Protocol**, **Host**, **Port**, and **API Key**
 3. Click **Test Connection** to verify
 4. Click **Connect** to save credentials
 
-Credentials are stored in a browser cookie (1-year expiry) and localStorage (30-day "remember me"). They are never sent to any third party — all connections go directly from your browser to the Typesense server or through the Next.js API proxy.
+### Settings Page
+
+Already connected? You can update your connection at any time from `/settings`:
+
+- Change host, port, protocol, or API key
+- Test the connection before saving
+- Reset to clear all stored credentials
+
+### How Credentials Are Stored
+
+Credentials are stored entirely in your browser — the server is stateless:
+
+| Storage | Purpose | Lifetime |
+|---|---|---|
+| Browser Cookie (`typesense_connection`) | Active session — sent to API proxy routes | 1 year |
+| localStorage | "Remember me" — pre-fills login form on return | 30-day sliding window |
+
+Credentials are **never** stored on the server, sent to third parties, or exposed in the browser bundle.
 
 ### Session Management
 
 - The app auto-logs you out after **1 hour of inactivity** (idle timer)
 - You can manually log out from the sidebar or header dropdown
-- Saved credentials can be cleared from the login page ("Forget credentials")
+- Saved credentials can be cleared from the login page ("Forget credentials") or settings page ("Reset")
 
 ---
 
@@ -362,21 +348,21 @@ Configure the Typesense connection:
 - **API Key** — Admin API key (hidden by default, toggle visibility)
 - **Test Connection** — Verify the connection before saving
 - **Save Settings** — Store in browser cookie
-- **Reset** — Clear all stored credentials
-
-The settings page also displays the current server-side environment variable configuration (read-only) for reference.
+- **Reset** — Clear all stored credentials from this browser
 
 ---
 
 ## Deploying to Vercel
 
-This app is optimized for [Vercel](https://vercel.com/) — the platform built by the creators of Next.js. No additional configuration is needed beyond setting environment variables.
+This app is optimized for [Vercel](https://vercel.com/) — the platform built by the creators of Next.js. No environment variables are required — users configure their Typesense connection through the login page.
 
 ### One-Click Deploy
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/YOUR_USERNAME/typesense-admin-ui&env=TYPESENSE_HOST,TYPESENSE_PORT,TYPESENSE_PROTOCOL,TYPESENSE_API_KEY&envDescription=Typesense%20server%20connection%20details&project-name=typesense-admin-ui)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/YOUR_USERNAME/typesense-admin-ui&project-name=typesense-admin-ui)
 
 > Replace `YOUR_USERNAME/typesense-admin-ui` with your actual GitHub repository URL.
+
+That's it — no environment variables to configure. After deployment, open your app and enter your Typesense connection details on the login page.
 
 ### Deploy via Vercel CLI
 
@@ -392,7 +378,7 @@ npm i -g vercel
 vercel login
 ```
 
-3. From the project root, run:
+3. From the project root, deploy:
 
 ```bash
 vercel
@@ -406,20 +392,13 @@ vercel
    - **Directory?** `./` (default)
    - **Override settings?** No
 
-5. Set environment variables:
-
-```bash
-vercel env add TYPESENSE_HOST
-vercel env add TYPESENSE_PORT
-vercel env add TYPESENSE_PROTOCOL
-vercel env add TYPESENSE_API_KEY
-```
-
-6. Deploy to production:
+5. Deploy to production:
 
 ```bash
 vercel --prod
 ```
+
+6. Open the deployed URL and log in with your Typesense server details.
 
 ### Deploy via GitHub Integration
 
@@ -432,28 +411,10 @@ vercel --prod
    - **Build Command:** `next build` (default)
    - **Output Directory:** `.next` (default)
    - **Install Command:** `npm install` (default)
-5. Add environment variables (see below)
-6. Click **Deploy**
+5. Click **Deploy** — no environment variables needed
+6. Open the deployed URL and log in with your Typesense connection details
 
 After the initial deploy, every push to `main` will automatically trigger a new production deployment. Pull requests get automatic preview deployments.
-
-### Environment Variables on Vercel
-
-Go to your project on Vercel → **Settings** → **Environment Variables** and add:
-
-| Variable | Value | Environment |
-|---|---|---|
-| `TYPESENSE_HOST` | Your Typesense server hostname (e.g., `ts.example.com`) | Production, Preview, Development |
-| `TYPESENSE_PORT` | Port number (e.g., `443` for Typesense Cloud, `8108` for self-hosted) | Production, Preview, Development |
-| `TYPESENSE_PROTOCOL` | `https` (recommended for production) or `http` | Production, Preview, Development |
-| `TYPESENSE_API_KEY` | Your Typesense admin API key | Production, Preview, Development |
-| `TYPESENSE_CONNECTION_TIMEOUT_SECONDS` | Connection timeout (optional, default: `5`) | Production, Preview, Development |
-
-**Important notes:**
-- All environment variables are **server-side only** — they are never exposed to the browser bundle
-- Users can also configure connections at runtime via the `/login` page, which stores credentials in a browser cookie. This takes precedence over environment variables.
-- For Typesense Cloud, use `TYPESENSE_PORT=443` and `TYPESENSE_PROTOCOL=https`
-- For self-hosted Typesense behind a reverse proxy with SSL, use port `443` and protocol `https`
 
 ### Custom Domain
 
@@ -478,36 +439,96 @@ Recommended settings for production:
 
 ---
 
+## Self-Hosting
+
+You can also deploy this app on any platform that supports Node.js:
+
+### Docker
+
+```dockerfile
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+EXPOSE 3000
+CMD ["node", "server.js"]
+```
+
+```bash
+docker build -t typesense-admin-ui .
+docker run -p 3000:3000 typesense-admin-ui
+```
+
+### Node.js
+
+```bash
+npm run build
+npm start
+```
+
+The app listens on port 3000 by default. Set the `PORT` environment variable to change it.
+
+### Behind a Reverse Proxy (nginx)
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name admin.example.com;
+
+    ssl_certificate /etc/ssl/certs/admin.example.com.pem;
+    ssl_certificate_key /etc/ssl/private/admin.example.com.key;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+> **Important:** Always use HTTPS in production so that cookies with the `Secure` flag are transmitted correctly.
+
+---
+
 ## Security
 
 ### How Credentials Are Handled
 
-This application does **not** store any API keys or Typesense credentials on the server. All credential storage is client-side:
+This application is fully stateless on the server — **no API keys or Typesense credentials are stored on the server**. All credential storage is client-side:
 
 | Storage | Purpose | Lifetime | Scope |
 |---|---|---|---|
-| Browser Cookie (`typesense_connection`) | Active session — used by API route proxies | 1 year | Same-site only |
-| localStorage | "Remember me" — pre-fills login form | 30-day sliding window | Browser only |
-| Server env vars (`.env.local`) | Fallback when no cookie is present | Process lifetime | Server only |
+| Browser Cookie (`typesense_connection`) | Active session — forwarded to API proxy routes via headers | 1 year | Same-site only |
+| localStorage | "Remember me" — pre-fills login form on return visits | 30-day sliding window | Browser only |
 
 ### Security Measures
 
-- **No server-side credential storage** — The app is stateless. Credentials come from cookies, headers, or environment variables per-request.
-- **API keys are never exposed in the browser bundle** — Server env vars do not use the `NEXT_PUBLIC_` prefix.
+- **No server-side credential storage** — The server is completely stateless. Credentials are provided per-request via cookies or headers.
+- **No environment variables needed** — No `TYPESENSE_*` or `NEXT_PUBLIC_*` env vars. Nothing to leak from your deployment config.
 - **API keys are masked in the UI** — Only the first 4 and last 4 characters are shown (e.g., `abcd••••••wxyz`).
 - **Cookies use `SameSite=Strict`** — Prevents CSRF attacks. The `Secure` flag is added automatically on HTTPS connections.
 - **Security headers** — `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, and `Referrer-Policy: strict-origin-when-cross-origin` are set on all responses.
 - **No credentials in URLs** — API keys are transmitted via HTTP headers, never in query parameters or URL paths.
 - **Error messages are sanitized** — Internal server details and API keys are never included in error responses.
 - **Session idle timeout** — Users are automatically logged out after 1 hour of inactivity.
-- **Credential transmission** — All API calls from the browser go either to the same-origin Next.js API proxy or directly to your Typesense server. No third-party services receive your credentials.
+- **No third-party data sharing** — All API calls go either to the same-origin Next.js API proxy or directly to your Typesense server.
 
 ### Recommendations for Production
 
 1. **Always use HTTPS** — Vercel provides this automatically. For self-hosted deployments, use a reverse proxy (nginx, Caddy) with SSL.
-2. **Use scoped API keys** — Avoid using the admin API key in the environment. Create a key with only the permissions this UI needs.
-3. **Restrict network access** — If possible, limit your Typesense server's firewall to accept connections only from your Vercel deployment's IP range.
-4. **Enable Vercel Authentication** — For added security, enable [Vercel Authentication](https://vercel.com/docs/security/deployment-protection) to require login before accessing the admin UI.
+2. **Use scoped API keys** — Create a Typesense API key with only the permissions this UI needs, rather than using the admin master key.
+3. **Restrict network access** — If possible, limit your Typesense server's firewall to accept connections only from your deployment's IP range.
+4. **Enable Vercel Authentication** — For added security, enable [Vercel Authentication](https://vercel.com/docs/security/deployment-protection) to require Vercel login before accessing the admin UI.
 
 ---
 
@@ -578,6 +599,8 @@ src/
 ├── hooks/
 │   └── useConnectionConfig.ts    # Connection state hook (getConfig, getBaseUrl, getHeaders, etc.)
 ├── lib/
+│   ├── typesense.ts              # Typesense client factory and request config extraction
+│   ├── savedConfig.ts            # localStorage persistence (30-day remember me)
 │   └── utils.ts                  # formatNumber, formatDate, cn() class utility
 └── types/
     └── typesense.ts              # TypeScript interfaces for all Typesense entities
@@ -587,7 +610,7 @@ src/
 
 ## API Routes
 
-All API routes are Next.js route handlers that proxy requests to the Typesense server. Some components also make direct calls to the Typesense server from the browser using the stored API key.
+All API routes are Next.js route handlers that proxy requests to the Typesense server. The Typesense connection details are extracted from the request headers (injected by `useConnectionConfig`) or the session cookie. Some components also make direct calls to the Typesense server from the browser.
 
 | Route | Methods | Description |
 |---|---|---|

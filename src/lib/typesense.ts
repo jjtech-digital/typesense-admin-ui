@@ -1,37 +1,7 @@
 import TypesenseClient from "typesense";
-import type { ConfigurationOptions } from "typesense/lib/Typesense/Configuration";
 import { CONNECTION_CONFIG_COOKIE, getConnectionConfigFromCookies } from "@/lib/utils";
 
 type Client = InstanceType<typeof TypesenseClient.Client>;
-
-function getTypesenseConfig(): ConfigurationOptions {
-  const host = process.env.TYPESENSE_HOST || "localhost";
-  const port = parseInt(process.env.TYPESENSE_PORT || "8108", 10);
-  const protocol = (process.env.TYPESENSE_PROTOCOL || "http") as
-    | "http"
-    | "https";
-  const apiKey = process.env.TYPESENSE_API_KEY || "";
-  const connectionTimeoutSeconds = parseInt(
-    process.env.TYPESENSE_CONNECTION_TIMEOUT_SECONDS || "5",
-    10
-  );
-
-  return {
-    nodes: [
-      {
-        host,
-        port,
-        protocol,
-      },
-    ],
-    apiKey,
-    connectionTimeoutSeconds,
-  };
-}
-
-export function getTypesenseClient(): Client {
-  return new TypesenseClient.Client(getTypesenseConfig());
-}
 
 export function getTypesenseClientFromConfig(config: {
   host: string;
@@ -57,7 +27,7 @@ export function getConfigFromRequest(request: Request): {
   port: number;
   protocol: "http" | "https";
   apiKey: string;
-} {
+} | null {
   // 1st: explicit x-typesense-* headers
   const tsHost = request.headers.get("x-typesense-host");
   const tsPort = request.headers.get("x-typesense-port");
@@ -83,17 +53,15 @@ export function getConfigFromRequest(request: Request): {
     if (config) return config;
   }
 
-  // Fallback: env vars
-  return {
-    host: process.env.TYPESENSE_HOST || "localhost",
-    port: parseInt(process.env.TYPESENSE_PORT || "8108", 10),
-    protocol: (process.env.TYPESENSE_PROTOCOL || "http") as "http" | "https",
-    apiKey: process.env.TYPESENSE_API_KEY || "",
-  };
+  return null;
 }
 
 export function getClientFromRequest(request: Request): Client {
-  return getTypesenseClientFromConfig(getConfigFromRequest(request));
+  const config = getConfigFromRequest(request);
+  if (!config) {
+    throw new Error("No Typesense connection configured. Please log in first.");
+  }
+  return getTypesenseClientFromConfig(config);
 }
 
 export function formatApiError(error: unknown): {
