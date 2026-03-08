@@ -149,9 +149,9 @@ export default async function DashboardPage() {
   return (
     <div>
       <Header />
-      <div className="p-6 space-y-8">
+      <div className="p-4 sm:p-6 space-y-6 sm:space-y-8">
         {/* Welcome banner */}
-        <div className="bg-gradient-to-r from-sidebar to-sidebar-active rounded-2xl p-6 text-white relative overflow-hidden">
+        <div className="bg-gradient-to-r from-sidebar to-sidebar-active rounded-xl sm:rounded-2xl p-4 sm:p-6 text-white relative overflow-hidden">
           <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-10">
             <Zap className="h-32 w-32" />
           </div>
@@ -190,7 +190,7 @@ export default async function DashboardPage() {
                 </span>
                 {stat.icon}
               </div>
-              <p className={`text-3xl font-bold ${stat.textColor}`}>
+              <p className={`text-2xl sm:text-3xl font-bold ${stat.textColor}`}>
                 {stat.value}
               </p>
               {"href" in stat && stat.href && (

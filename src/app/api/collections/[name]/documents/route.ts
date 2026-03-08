@@ -24,6 +24,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       .slice(0, 5)
       .join(",");
 
+    const facetBy = searchParams.get("facet_by") || "";
+    const maxFacetValues = parseInt(searchParams.get("max_facet_values") || "20", 10);
+
     const searchOptions: Record<string, string | number | boolean> = {
       q,
       query_by: queryByFields || ".*",
@@ -33,6 +36,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     if (filterBy) searchOptions.filter_by = filterBy;
     if (sortBy) searchOptions.sort_by = sortBy;
+    if (facetBy) {
+      searchOptions.facet_by = facetBy;
+      searchOptions.max_facet_values = maxFacetValues;
+    }
 
     const results = await client.collections(name).documents().search(searchOptions);
     return NextResponse.json(results);

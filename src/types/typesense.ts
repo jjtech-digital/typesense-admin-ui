@@ -1,28 +1,38 @@
+export type TypesenseFieldType =
+  | "string"
+  | "int32"
+  | "int64"
+  | "float"
+  | "bool"
+  | "geopoint"
+  | "string[]"
+  | "int32[]"
+  | "int64[]"
+  | "float[]"
+  | "bool[]"
+  | "geopoint[]"
+  | "auto"
+  | "object"
+  | "object[]"
+  | "image"
+  | "string*";
+
 export interface TypesenseField {
   name: string;
-  type:
-    | "string"
-    | "int32"
-    | "int64"
-    | "float"
-    | "bool"
-    | "geopoint"
-    | "string[]"
-    | "int32[]"
-    | "int64[]"
-    | "float[]"
-    | "bool[]"
-    | "auto"
-    | "object"
-    | "object[]"
-    | "image";
+  type: TypesenseFieldType;
   facet?: boolean;
   optional?: boolean;
   index?: boolean;
   sort?: boolean;
   infix?: boolean;
   locale?: string;
+  store?: boolean;
+  stem?: boolean;
   num_dim?: number;
+  vec_dist?: "cosine" | "ip";
+  range_index?: boolean;
+  reference?: string;
+  drop?: boolean;
 }
 
 export interface TypesenseCollection {
@@ -93,21 +103,38 @@ export interface TypesenseFacetCount {
   };
 }
 
-export interface TypesenseSynonym {
+// Synonym Sets API (Typesense v30+)
+// Global synonym sets independent of collections.
+// Collections reference sets via the synonym_sets field.
+
+export interface SynonymItem {
   id: string;
+  synonyms: string[];
+  root?: string;           // present → one-way synonym
+  locale?: string;
+  symbols_to_index?: string[];
+}
+
+export interface SynonymSet {
+  name: string;
+  items: SynonymItem[];
+}
+
+export interface SynonymItemCreate {
   synonyms: string[];
   root?: string;
   locale?: string;
   symbols_to_index?: string[];
 }
 
+export interface SynonymSetCreate {
+  items: SynonymItemCreate[];
+}
+
 export type SynonymType = "one-way" | "multi-way";
 
-export interface TypesenseSynonymCreate {
-  synonyms: string[];
-  root?: string;
-  locale?: string;
-}
+// Legacy alias kept for any remaining references
+export type TypesenseSynonym = SynonymItem;
 
 export interface TypesenseOverride {
   id: string;

@@ -9,7 +9,6 @@ import {
   XCircle,
   AlertTriangle,
   Loader2,
-  X,
   ArrowRight,
   GitMerge,
   Download,
@@ -20,17 +19,26 @@ import { Badge } from "@/components/ui/Badge";
 import { useToast } from "@/components/ui/Toast";
 import { useConnectionConfig } from "@/hooks/useConnectionConfig";
 
-// ── types ──────────────────────────────────────────────────────────────────
+// ── types ─────────────────────────────────────────────────────────────────────
 
-interface ParsedSynonym {
-  id: string;
+interface ParsedItem {
+  setName: string;
+  itemId: string;
   root?: string;
   synonyms: string[];
 }
 
+// For uploading: items grouped per set
+interface SetPayload {
+  setName: string;
+  items: { id: string; synonyms: string[]; root?: string }[];
+}
+
 type UploadStatus = "pending" | "success" | "error";
 
-interface RowResult extends ParsedSynonym {
+interface SetResult {
+  setName: string;
+  itemCount: number;
   status: UploadStatus;
   message?: string;
 }
@@ -40,13 +48,11 @@ type Tab = "csv" | "json";
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  collectionName: string;
   onSuccess: () => void;
 }
 
-// ── CSV parser ─────────────────────────────────────────────────────────────
-// Expected columns: id, root, synonyms
-// "synonyms" cell is itself comma-separated values (quoted if they contain commas)
+// ── CSV parser ─────────────────────────────────────────────────────────────────
+// Columns: set_name, item_id, root (optional), synonyms (comma-separated, quoted)
 
 function parseCsvLine(line: string): string[] {
   const result: string[] = [];
@@ -55,12 +61,8 @@ function parseCsvLine(line: string): string[] {
   for (let i = 0; i < line.length; i++) {
     const ch = line[i];
     if (ch === '"') {
-      if (inQuotes && line[i + 1] === '"') {
-        cur += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
+      if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; }
+      else inQuotes = !inQuotes;
     } else if (ch === "," && !inQuotes) {
       result.push(cur.trim());
       cur = "";
@@ -72,96 +74,105 @@ function parseCsvLine(line: string): string[] {
   return result;
 }
 
-function parseCsv(text: string): { rows: ParsedSynonym[]; errors: string[] } {
-  const lines = text
-    .split(/\r?\n/)
-    .map((l) => l.trim())
-    .filter(Boolean);
-
+function parseCsv(text: string): { rows: ParsedItem[]; errors: string[] } {
+  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   if (lines.length === 0) return { rows: [], errors: ["File is empty"] };
 
-  // Detect header
-  const firstLineLower = lines[0].toLowerCase();
+  const firstLower = lines[0].toLowerCase();
   const hasHeader =
-    firstLineLower.includes("id") ||
-    firstLineLower.includes("root") ||
-    firstLineLower.includes("synonym");
+    firstLower.includes("set") ||
+    firstLower.includes("item") ||
+    firstLower.includes("synonym");
   const dataLines = hasHeader ? lines.slice(1) : lines;
 
-  const rows: ParsedSynonym[] = [];
+  const rows: ParsedItem[] = [];
   const errors: string[] = [];
 
   dataLines.forEach((line, idx) => {
     const lineNum = idx + (hasHeader ? 2 : 1);
     const cols = parseCsvLine(line);
 
-    if (cols.length < 2) {
-      errors.push(`Line ${lineNum}: needs at least 2 columns (id, synonyms)`);
+    if (cols.length < 3) {
+      errors.push(`Line ${lineNum}: needs at least 3 columns (set_name, item_id, synonyms)`);
       return;
     }
 
-    // Support 2-column (id, synonyms) or 3-column (id, root, synonyms)
-    let id: string, root: string | undefined, rawSynonyms: string;
-    if (cols.length === 2) {
-      [id, rawSynonyms] = cols;
-      root = undefined;
+    // 3 cols: set_name, item_id, synonyms
+    // 4 cols: set_name, item_id, root, synonyms
+    let setName: string, itemId: string, root: string | undefined, rawSynonyms: string;
+    if (cols.length === 3) {
+      [setName, itemId, rawSynonyms] = cols;
     } else {
-      [id, root, rawSynonyms] = cols;
+      [setName, itemId, root, rawSynonyms] = cols;
       if (!root) root = undefined;
     }
 
-    if (!id) {
-      errors.push(`Line ${lineNum}: id is required`);
-      return;
-    }
+    if (!setName) { errors.push(`Line ${lineNum}: set_name is required`); return; }
+    if (!itemId) { errors.push(`Line ${lineNum}: item_id is required`); return; }
 
-    const synonyms = rawSynonyms
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
+    const synonyms = rawSynonyms.split(",").map((s) => s.trim()).filter(Boolean);
+    if (synonyms.length === 0) { errors.push(`Line ${lineNum}: synonyms list is empty`); return; }
 
-    if (synonyms.length === 0) {
-      errors.push(`Line ${lineNum}: synonyms list is empty`);
-      return;
-    }
-
-    rows.push({ id, root: root || undefined, synonyms });
+    rows.push({ setName, itemId, root: root || undefined, synonyms });
   });
 
   return { rows, errors };
 }
 
-// ── JSON parser ────────────────────────────────────────────────────────────
+// ── JSON parser ───────────────────────────────────────────────────────────────
+// Expected: array of { set_name, item_id, root?, synonyms[] }
+// OR: array of { name, items: [{id, root?, synonyms[]}] }
 
-function parseJson(text: string): { rows: ParsedSynonym[]; errors: string[] } {
+function parseJson(text: string): { rows: ParsedItem[]; errors: string[] } {
   try {
     const parsed = JSON.parse(text);
     if (!Array.isArray(parsed)) {
-      return { rows: [], errors: ["JSON must be an array of synonym objects"] };
+      return { rows: [], errors: ["JSON must be an array"] };
     }
 
-    const rows: ParsedSynonym[] = [];
+    const rows: ParsedItem[] = [];
     const errors: string[] = [];
 
-    parsed.forEach((item, idx) => {
-      if (typeof item !== "object" || item === null) {
-        errors.push(`Item ${idx + 1}: must be an object`);
-        return;
-      }
-      if (!item.id || typeof item.id !== "string") {
-        errors.push(`Item ${idx + 1}: "id" (string) is required`);
-        return;
-      }
-      if (!Array.isArray(item.synonyms) || item.synonyms.length === 0) {
-        errors.push(`Item ${idx + 1}: "synonyms" must be a non-empty array`);
-        return;
-      }
-      rows.push({
-        id: item.id,
-        root: item.root || undefined,
-        synonyms: item.synonyms,
+    // Detect format from first element
+    const first = parsed[0];
+    const isSetFormat = first && ("name" in first || "items" in first);
+
+    if (isSetFormat) {
+      // Format: [{name, items: [{id, root?, synonyms[]}]}]
+      parsed.forEach((set, si) => {
+        if (!set.name) { errors.push(`Set ${si + 1}: "name" is required`); return; }
+        if (!Array.isArray(set.items)) { errors.push(`Set ${si + 1}: "items" must be an array`); return; }
+        set.items.forEach((item: Record<string, unknown>, ii: number) => {
+          if (!item.id) { errors.push(`Set ${si + 1} item ${ii + 1}: "id" is required`); return; }
+          if (!Array.isArray(item.synonyms) || (item.synonyms as string[]).length === 0) {
+            errors.push(`Set ${si + 1} item ${ii + 1}: "synonyms" must be a non-empty array`);
+            return;
+          }
+          rows.push({
+            setName: set.name,
+            itemId: item.id as string,
+            root: item.root as string | undefined,
+            synonyms: item.synonyms as string[],
+          });
+        });
       });
-    });
+    } else {
+      // Flat format: [{set_name, item_id, root?, synonyms[]}]
+      parsed.forEach((item, idx) => {
+        if (!item.set_name) { errors.push(`Item ${idx + 1}: "set_name" is required`); return; }
+        if (!item.item_id) { errors.push(`Item ${idx + 1}: "item_id" is required`); return; }
+        if (!Array.isArray(item.synonyms) || item.synonyms.length === 0) {
+          errors.push(`Item ${idx + 1}: "synonyms" must be a non-empty array`);
+          return;
+        }
+        rows.push({
+          setName: item.set_name,
+          itemId: item.item_id,
+          root: item.root || undefined,
+          synonyms: item.synonyms,
+        });
+      });
+    }
 
     return { rows, errors };
   } catch (e) {
@@ -172,76 +183,80 @@ function parseJson(text: string): { rows: ParsedSynonym[]; errors: string[] } {
   }
 }
 
-// ── CSV template download ──────────────────────────────────────────────────
+// Group parsed items → one payload per synonym set
+function groupIntoSets(rows: ParsedItem[]): SetPayload[] {
+  const map = new Map<string, SetPayload>();
+  for (const row of rows) {
+    if (!map.has(row.setName)) map.set(row.setName, { setName: row.setName, items: [] });
+    map.get(row.setName)!.items.push({
+      id: row.itemId,
+      synonyms: row.synonyms,
+      ...(row.root ? { root: row.root } : {}),
+    });
+  }
+  return Array.from(map.values());
+}
+
+// ── template download ─────────────────────────────────────────────────────────
 
 function downloadCsvTemplate() {
   const content = [
-    "id,root,synonyms",
-    'syn-car,,"car,automobile,vehicle"',
-    'syn-phone,smartphone,"mobile,cell phone,handset"',
+    "set_name,item_id,root,synonyms",
+    'clothing-synonyms,syn-shirt,,"shirt,tee,top"',
+    'clothing-synonyms,syn-blazer,blazer,"coat,jacket"',
+    'vehicle-synonyms,syn-car,,"car,automobile,vehicle"',
   ].join("\n");
   const blob = new Blob([content], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "synonyms-template.csv";
+  a.download = "synonym-sets-template.csv";
   a.click();
   URL.revokeObjectURL(url);
 }
 
-// ── component ──────────────────────────────────────────────────────────────
+// ── component ─────────────────────────────────────────────────────────────────
 
-export function BulkUploadSynonymsModal({
-  isOpen,
-  onClose,
-  collectionName,
-  onSuccess,
-}: Props) {
+export function BulkUploadSynonymsModal({ isOpen, onClose, onSuccess }: Props) {
   const [tab, setTab] = useState<Tab>("csv");
   const [csvText, setCsvText] = useState("");
   const [jsonText, setJsonText] = useState("");
   const [dragging, setDragging] = useState(false);
   const [parseErrors, setParseErrors] = useState<string[]>([]);
-  const [preview, setPreview] = useState<ParsedSynonym[]>([]);
-  const [results, setResults] = useState<RowResult[]>([]);
+  const [preview, setPreview] = useState<ParsedItem[]>([]);
+  const [setPayloads, setSetPayloads] = useState<SetPayload[]>([]);
+  const [results, setResults] = useState<SetResult[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadDone, setUploadDone] = useState(false);
   const [progress, setProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { success, error: toastError } = useToast();
-  const { getHeaders } = useConnectionConfig();
+  const { getConfig, getBaseUrl } = useConnectionConfig();
 
   const reset = () => {
     setCsvText("");
     setJsonText("");
     setParseErrors([]);
     setPreview([]);
+    setSetPayloads([]);
     setResults([]);
     setUploadDone(false);
     setProgress(0);
   };
 
   const handleClose = () => {
-    if (!uploading) {
-      reset();
-      onClose();
-    }
+    if (!uploading) { reset(); onClose(); }
   };
 
-  // Parse whichever tab is active
-  const parse = useCallback(
-    (text: string, source: Tab) => {
-      const { rows, errors } =
-        source === "csv" ? parseCsv(text) : parseJson(text);
-      setParseErrors(errors);
-      setPreview(rows);
-      setResults([]);
-      setUploadDone(false);
-    },
-    []
-  );
+  const parse = useCallback((text: string, source: Tab) => {
+    const { rows, errors } = source === "csv" ? parseCsv(text) : parseJson(text);
+    setParseErrors(errors);
+    setPreview(rows);
+    setSetPayloads(groupIntoSets(rows));
+    setResults([]);
+    setUploadDone(false);
+  }, []);
 
-  // CSV file drop / select
   const handleFile = (file: File) => {
     if (!file.name.endsWith(".csv") && file.type !== "text/csv") {
       setParseErrors(["Please upload a .csv file"]);
@@ -263,45 +278,50 @@ export function BulkUploadSynonymsModal({
     if (file) handleFile(file);
   };
 
-  // Upload all parsed rows sequentially
+  // Upload: one PUT per synonym set
   const handleUpload = async () => {
-    if (preview.length === 0) return;
+    if (setPayloads.length === 0) return;
     setUploading(true);
     setProgress(0);
 
-    const rowResults: RowResult[] = preview.map((r) => ({
-      ...r,
+    const rowResults: SetResult[] = setPayloads.map((sp) => ({
+      setName: sp.setName,
+      itemCount: sp.items.length,
       status: "pending",
     }));
     setResults([...rowResults]);
 
+    const baseUrl = getBaseUrl();
+    const cfg = getConfig();
+    if (!baseUrl || !cfg) {
+      toastError("No Typesense connection configured. Go to Settings first.");
+      setUploading(false);
+      return;
+    }
+
     let successCount = 0;
 
-    for (let i = 0; i < preview.length; i++) {
-      const row = preview[i];
+    for (let i = 0; i < setPayloads.length; i++) {
+      const sp = setPayloads[i];
       try {
         const res = await fetch(
-          `/api/collections/${collectionName}/synonyms`,
+          `${baseUrl}/synonym_sets/${encodeURIComponent(sp.setName)}`,
           {
-            method: "POST",
-            headers: { "Content-Type": "application/json", ...getHeaders() },
-            body: JSON.stringify({
-              id: row.id,
-              synonyms: row.synonyms,
-              ...(row.root ? { root: row.root } : {}),
-            }),
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "X-TYPESENSE-API-KEY": cfg.apiKey,
+            },
+            body: JSON.stringify({ items: sp.items }),
           }
         );
         const data = await res.json();
-        if (!res.ok) {
-          const detail = data.url ? ` [${data.url}]` : "";
-          throw new Error((data.error || "Failed") + detail);
-        }
-        rowResults[i] = { ...row, status: "success" };
+        if (!res.ok) throw new Error(data.message || `Error ${res.status}`);
+        rowResults[i] = { ...rowResults[i], status: "success" };
         successCount++;
       } catch (e) {
         rowResults[i] = {
-          ...row,
+          ...rowResults[i],
           status: "error",
           message: e instanceof Error ? e.message : "Unknown error",
         };
@@ -315,7 +335,7 @@ export function BulkUploadSynonymsModal({
 
     if (successCount > 0) {
       success(
-        `${successCount} of ${preview.length} synonym${preview.length !== 1 ? "s" : ""} uploaded`
+        `${successCount} of ${setPayloads.length} synonym set${setPayloads.length !== 1 ? "s" : ""} uploaded`
       );
       onSuccess();
     } else {
@@ -325,28 +345,27 @@ export function BulkUploadSynonymsModal({
 
   const successCount = results.filter((r) => r.status === "success").length;
   const errorCount = results.filter((r) => r.status === "error").length;
+  const uniqueSets = setPayloads.length;
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title="Bulk Upload Synonyms"
+      title="Bulk Upload Synonym Sets"
       size="xl"
       footer={
         uploadDone ? (
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-500">
-              {successCount} succeeded · {errorCount} failed
+              {successCount} sets succeeded · {errorCount} failed
             </span>
-            <Button variant="primary" onClick={handleClose}>
-              Done
-            </Button>
+            <Button variant="primary" onClick={handleClose}>Done</Button>
           </div>
         ) : (
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-400">
-              {preview.length > 0 &&
-                `${preview.length} synonym${preview.length !== 1 ? "s" : ""} ready to upload`}
+              {uniqueSets > 0 &&
+                `${preview.length} item${preview.length !== 1 ? "s" : ""} across ${uniqueSets} set${uniqueSets !== 1 ? "s" : ""}`}
             </span>
             <div className="flex gap-3">
               <Button variant="secondary" onClick={handleClose} disabled={uploading}>
@@ -355,12 +374,12 @@ export function BulkUploadSynonymsModal({
               <Button
                 variant="primary"
                 onClick={handleUpload}
-                disabled={preview.length === 0 || uploading}
+                disabled={uniqueSets === 0 || uploading}
                 loading={uploading}
               >
                 {uploading
-                  ? `Uploading ${progress}/${preview.length}…`
-                  : `Upload ${preview.length > 0 ? preview.length : ""} Synonym${preview.length !== 1 ? "s" : ""}`}
+                  ? `Uploading ${progress}/${uniqueSets}…`
+                  : `Upload ${uniqueSets > 0 ? uniqueSets : ""} Set${uniqueSets !== 1 ? "s" : ""}`}
               </Button>
             </div>
           </div>
@@ -370,44 +389,36 @@ export function BulkUploadSynonymsModal({
       <div className="space-y-5">
         {/* Tab switcher */}
         <div className="flex gap-1 p-1 bg-gray-100 rounded-lg w-fit">
-          <button
-            onClick={() => { setTab("csv"); reset(); }}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
-              tab === "csv"
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            <FileText className="h-4 w-4" />
-            CSV File
-          </button>
-          <button
-            onClick={() => { setTab("json"); reset(); }}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
-              tab === "json"
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            <Code2 className="h-4 w-4" />
-            JSON
-          </button>
+          {(["csv", "json"] as Tab[]).map((t) => (
+            <button
+              key={t}
+              onClick={() => { setTab(t); reset(); }}
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                tab === t
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              {t === "csv" ? <FileText className="h-4 w-4" /> : <Code2 className="h-4 w-4" />}
+              {t.toUpperCase()}
+            </button>
+          ))}
         </div>
 
-        {/* ── CSV tab ── */}
+        {/* CSV tab */}
         {tab === "csv" && (
           <div className="space-y-4">
-            {/* Format hint + template download */}
             <div className="flex items-start justify-between gap-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="text-xs text-blue-800 space-y-1">
-                <p className="font-semibold">Expected CSV format (3 columns):</p>
+                <p className="font-semibold">Expected CSV format (4 columns):</p>
                 <p className="font-mono bg-blue-100 rounded px-2 py-1">
-                  id, root, synonyms
+                  set_name, item_id, root, synonyms
                 </p>
                 <ul className="list-disc list-inside space-y-0.5 mt-1 text-blue-700">
                   <li>Leave <span className="font-mono">root</span> empty for multi-way synonyms</li>
+                  <li>Multiple rows with the same <span className="font-mono">set_name</span> are grouped into one set</li>
+                  <li>Uploading to an existing set <strong>replaces</strong> all its items</li>
                   <li>Separate synonym words with commas inside quotes</li>
-                  <li>First row can be a header (auto-detected)</li>
                 </ul>
               </div>
               <button
@@ -425,7 +436,7 @@ export function BulkUploadSynonymsModal({
               onDragLeave={() => setDragging(false)}
               onDrop={onDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`relative border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all ${
+              className={`border-2 border-dashed rounded-xl p-8 flex flex-col items-center gap-3 cursor-pointer transition-all ${
                 dragging
                   ? "border-brand bg-brand/5"
                   : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
@@ -465,37 +476,63 @@ export function BulkUploadSynonymsModal({
               <textarea
                 rows={5}
                 value={csvText}
-                onChange={(e) => {
-                  setCsvText(e.target.value);
-                  parse(e.target.value, "csv");
-                }}
-                placeholder={`id,root,synonyms\nsyn-car,,"car,automobile,vehicle"\nsyn-phone,smartphone,"mobile,cell phone"`}
+                onChange={(e) => { setCsvText(e.target.value); parse(e.target.value, "csv"); }}
+                placeholder={`set_name,item_id,root,synonyms\nclothing-synonyms,syn-shirt,,"shirt,tee,top"\nclothing-synonyms,syn-blazer,blazer,"coat,jacket"`}
                 className="w-full px-3 py-2 text-xs font-mono border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand resize-none"
               />
             </div>
           </div>
         )}
 
-        {/* ── JSON tab ── */}
+        {/* JSON tab */}
         {tab === "json" && (
           <div className="space-y-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-xs text-blue-800 space-y-1">
-              <p className="font-semibold">Expected JSON format:</p>
-              <pre className="bg-blue-100 rounded px-3 py-2 text-blue-900 overflow-x-auto">{`[
-  { "id": "syn-car", "synonyms": ["car", "automobile"] },
-  { "id": "syn-phone", "root": "smartphone", "synonyms": ["mobile", "cell phone"] }
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-xs text-blue-800 space-y-2">
+              <p className="font-semibold">Accepted JSON formats:</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className="font-medium text-blue-700 mb-1">Set format (recommended):</p>
+                  <pre className="bg-blue-100 rounded px-2 py-1.5 text-blue-900 overflow-x-auto text-xs">{`[
+  {
+    "name": "clothing",
+    "items": [
+      {
+        "id": "syn-shirt",
+        "synonyms": ["shirt","tee"]
+      },
+      {
+        "id": "syn-blazer",
+        "root": "blazer",
+        "synonyms": ["coat","jacket"]
+      }
+    ]
+  }
 ]`}</pre>
-              <p className="text-blue-700">Omit <span className="font-mono">root</span> for multi-way synonyms.</p>
+                </div>
+                <div>
+                  <p className="font-medium text-blue-700 mb-1">Flat format:</p>
+                  <pre className="bg-blue-100 rounded px-2 py-1.5 text-blue-900 overflow-x-auto text-xs">{`[
+  {
+    "set_name": "clothing",
+    "item_id": "syn-shirt",
+    "synonyms": ["shirt","tee"]
+  },
+  {
+    "set_name": "clothing",
+    "item_id": "syn-blazer",
+    "root": "blazer",
+    "synonyms": ["coat","jacket"]
+  }
+]`}</pre>
+                </div>
+              </div>
             </div>
 
             <textarea
-              rows={10}
+              rows={12}
               value={jsonText}
-              onChange={(e) => {
-                setJsonText(e.target.value);
-                parse(e.target.value, "json");
-              }}
-              placeholder={`[\n  { "id": "syn-1", "synonyms": ["car", "automobile"] }\n]`}
+              onChange={(e) => { setJsonText(e.target.value); parse(e.target.value, "json"); }}
+              placeholder={`[\n  {\n    "name": "my-set",\n    "items": [\n      { "id": "item-1", "synonyms": ["car", "automobile"] }\n    ]\n  }\n]`}
               className="w-full px-3 py-2 text-xs font-mono border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand resize-none"
             />
           </div>
@@ -510,27 +547,27 @@ export function BulkUploadSynonymsModal({
             </p>
             <ul className="space-y-0.5">
               {parseErrors.map((e, i) => (
-                <li key={i} className="text-xs text-red-600 font-mono">
-                  {e}
-                </li>
+                <li key={i} className="text-xs text-red-600 font-mono">{e}</li>
               ))}
             </ul>
           </div>
         )}
 
-        {/* Preview / results table */}
-        {preview.length > 0 && (
+        {/* Preview: grouped by set */}
+        {setPayloads.length > 0 && (
           <div>
             <p className="text-xs font-medium text-gray-500 mb-2">
-              {uploadDone ? "Upload results" : "Preview"} — {preview.length} synonym{preview.length !== 1 ? "s" : ""}
+              {uploadDone ? "Upload results" : "Preview"} —{" "}
+              {preview.length} item{preview.length !== 1 ? "s" : ""} in{" "}
+              {uniqueSets} set{uniqueSets !== 1 ? "s" : ""}
             </p>
             <div className="border border-gray-200 rounded-lg overflow-hidden">
-              <div className="overflow-y-auto max-h-64">
+              <div className="overflow-y-auto max-h-72">
                 <table className="w-full text-xs">
                   <thead className="bg-gray-50 sticky top-0">
                     <tr>
-                      <th className="text-left px-3 py-2 font-medium text-gray-500 w-8">#</th>
-                      <th className="text-left px-3 py-2 font-medium text-gray-500">ID</th>
+                      <th className="text-left px-3 py-2 font-medium text-gray-500">Set Name</th>
+                      <th className="text-left px-3 py-2 font-medium text-gray-500">Item ID</th>
                       <th className="text-left px-3 py-2 font-medium text-gray-500 w-20">Type</th>
                       <th className="text-left px-3 py-2 font-medium text-gray-500">Synonyms</th>
                       {uploadDone && (
@@ -539,11 +576,11 @@ export function BulkUploadSynonymsModal({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {preview.map((row, i) => {
-                      const result = results[i];
-                      return (
+                    {setPayloads.map((sp) => {
+                      const result = results.find((r) => r.setName === sp.setName);
+                      return sp.items.map((item, ii) => (
                         <tr
-                          key={i}
+                          key={`${sp.setName}::${item.id}`}
                           className={
                             result?.status === "success"
                               ? "bg-green-50"
@@ -552,39 +589,44 @@ export function BulkUploadSynonymsModal({
                               : ""
                           }
                         >
-                          <td className="px-3 py-2 text-gray-400">{i + 1}</td>
-                          <td className="px-3 py-2 font-mono text-gray-700">
-                            {row.id}
-                          </td>
+                          {/* Set name only on first item row */}
+                          {ii === 0 ? (
+                            <td
+                              className="px-3 py-2 font-mono font-medium text-gray-700 align-top"
+                              rowSpan={sp.items.length}
+                            >
+                              {sp.setName}
+                            </td>
+                          ) : null}
+                          <td className="px-3 py-2 font-mono text-gray-500">{item.id}</td>
                           <td className="px-3 py-2">
-                            {row.root ? (
+                            {item.root ? (
                               <span className="inline-flex items-center gap-1 text-blue-700">
-                                <ArrowRight className="h-3 w-3" />
-                                One-way
+                                <ArrowRight className="h-3 w-3" /> One-way
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1 text-green-700">
-                                <GitMerge className="h-3 w-3" />
-                                Multi
+                                <GitMerge className="h-3 w-3" /> Multi
                               </span>
                             )}
                           </td>
                           <td className="px-3 py-2">
                             <div className="flex flex-wrap gap-1">
-                              {row.root && (
+                              {item.root && (
                                 <Badge variant="info" className="text-xs">
-                                  root: {row.root}
+                                  root: {item.root}
                                 </Badge>
                               )}
-                              {row.synonyms.map((s, j) => (
-                                <Badge key={j} variant="default" className="text-xs">
-                                  {s}
-                                </Badge>
+                              {item.synonyms.map((s, j) => (
+                                <Badge key={j} variant="default" className="text-xs">{s}</Badge>
                               ))}
                             </div>
                           </td>
-                          {uploadDone && (
-                            <td className="px-3 py-2">
+                          {uploadDone && ii === 0 ? (
+                            <td
+                              className="px-3 py-2 align-top"
+                              rowSpan={sp.items.length}
+                            >
                               {result?.status === "pending" && (
                                 <Loader2 className="h-3.5 w-3.5 animate-spin text-gray-400" />
                               )}
@@ -592,37 +634,32 @@ export function BulkUploadSynonymsModal({
                                 <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
                               )}
                               {result?.status === "error" && (
-                                <span
-                                  className="flex items-center gap-1 text-red-600"
-                                  title={result.message}
-                                >
+                                <span className="flex items-center gap-1 text-red-600" title={result.message}>
                                   <XCircle className="h-3.5 w-3.5 flex-shrink-0" />
-                                  <span className="truncate max-w-[120px]">
-                                    {result.message}
-                                  </span>
+                                  <span className="truncate max-w-[100px]">{result.message}</span>
                                 </span>
                               )}
                             </td>
-                          )}
+                          ) : uploadDone && ii !== 0 ? null : null}
                         </tr>
-                      );
+                      ));
                     })}
                   </tbody>
                 </table>
               </div>
             </div>
 
-            {/* Upload progress bar */}
+            {/* Progress bar */}
             {uploading && (
               <div className="mt-2">
                 <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-brand transition-all duration-300 rounded-full"
-                    style={{ width: `${(progress / preview.length) * 100}%` }}
+                    style={{ width: `${(progress / uniqueSets) * 100}%` }}
                   />
                 </div>
                 <p className="text-xs text-gray-400 mt-1 text-right">
-                  {progress} / {preview.length}
+                  {progress} / {uniqueSets} sets
                 </p>
               </div>
             )}

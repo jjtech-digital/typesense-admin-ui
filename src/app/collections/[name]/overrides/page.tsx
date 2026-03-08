@@ -14,9 +14,9 @@ export default function OverridesPage() {
   return (
     <div>
       <Header />
-      <div className="p-6 space-y-6">
+      <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
         {/* Breadcrumb navigation */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4">
           <Link
             href={`/collections/${name}`}
             className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
@@ -36,7 +36,7 @@ export default function OverridesPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
           <OverridesList collectionName={name} />
         </div>
       </div>

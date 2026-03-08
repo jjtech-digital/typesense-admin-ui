@@ -48,7 +48,7 @@ export function TableRow({
 }
 
 interface TableHeaderProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   className?: string;
   onClick?: () => void;
   sortable?: boolean;
@@ -78,15 +78,18 @@ export function TableCell({
   children,
   className,
   colSpan,
+  onClick,
 }: {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   className?: string;
   colSpan?: number;
+  onClick?: (e: React.MouseEvent) => void;
 }) {
   return (
     <td
       className={cn("px-4 py-3 text-gray-700 align-middle", className)}
       colSpan={colSpan}
+      onClick={onClick}
     >
       {children}
     </td>

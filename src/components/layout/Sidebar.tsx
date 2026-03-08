@@ -12,8 +12,11 @@ import {
   Zap,
   Menu,
   X,
+  GitMerge,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useConnectionConfig } from "@/hooks/useConnectionConfig";
 
 interface NavItem {
   href: string;
@@ -35,6 +38,11 @@ const navItems: NavItem[] = [
     icon: <Database className="h-5 w-5" />,
   },
   {
+    href: "/synonyms",
+    label: "Synonyms",
+    icon: <GitMerge className="h-5 w-5" />,
+  },
+  {
     href: "/keys",
     label: "API Keys",
     icon: <Key className="h-5 w-5" />,
@@ -49,10 +57,22 @@ const navItems: NavItem[] = [
 export function Sidebar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [confirmingLogout, setConfirmingLogout] = useState(false);
+  const { logout } = useConnectionConfig();
 
   const isActive = (item: NavItem) => {
     if (item.exact) return pathname === item.href;
     return pathname === item.href || pathname.startsWith(item.href + "/");
+  };
+
+  const handleLogout = () => {
+    if (!confirmingLogout) {
+      setConfirmingLogout(true);
+      // Auto-reset if user doesn't confirm within 3s
+      setTimeout(() => setConfirmingLogout(false), 3000);
+      return;
+    }
+    logout("manual");
   };
 
   const SidebarContent = () => (
@@ -63,9 +83,7 @@ export function Sidebar() {
           <Zap className="h-5 w-5 text-white" />
         </div>
         <div>
-          <h1 className="text-white font-bold text-base leading-tight">
-            Typesense
-          </h1>
+          <h1 className="text-white font-bold text-base leading-tight">Typesense</h1>
           <p className="text-gray-400 text-xs">Admin UI</p>
         </div>
       </div>
@@ -98,17 +116,31 @@ export function Sidebar() {
                 {item.icon}
               </span>
               <span className="flex-1">{item.label}</span>
-              {active && (
-                <ChevronRight className="h-4 w-4 text-gray-300 opacity-60" />
-              )}
+              {active && <ChevronRight className="h-4 w-4 text-gray-300 opacity-60" />}
             </Link>
           );
         })}
       </nav>
 
       {/* Footer */}
-      <div className="px-6 py-4 border-t border-sidebar-border">
-        <p className="text-xs text-gray-500">Typesense Admin UI v0.1.0</p>
+      <div className="px-3 py-4 border-t border-sidebar-border space-y-1">
+        {/* Logout button */}
+        <button
+          onClick={handleLogout}
+          className={cn(
+            "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150",
+            confirmingLogout
+              ? "bg-red-600/20 text-red-400 hover:bg-red-600/30"
+              : "text-gray-400 hover:bg-sidebar-hover hover:text-white"
+          )}
+        >
+          <LogOut className="h-5 w-5" />
+          <span className="flex-1 text-left">
+            {confirmingLogout ? "Click again to confirm" : "Log out"}
+          </span>
+        </button>
+
+        <p className="px-3 pt-1 text-xs text-gray-600">Typesense Admin UI v0.1.0</p>
       </div>
     </div>
   );

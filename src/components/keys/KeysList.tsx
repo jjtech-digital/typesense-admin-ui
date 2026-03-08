@@ -100,14 +100,14 @@ export function KeysList({ initialKeys }: KeysListProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold text-gray-900">API Keys</h2>
           <p className="text-sm text-gray-500">
             {keys.length} key{keys.length !== 1 ? "s" : ""} configured
           </p>
         </div>
-        <Button variant="primary" onClick={() => setCreateOpen(true)}>
+        <Button variant="primary" onClick={() => setCreateOpen(true)} className="self-start sm:self-auto">
           <Key className="h-4 w-4" />
           Create API Key
         </Button>

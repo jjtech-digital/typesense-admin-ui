@@ -1,12 +1,16 @@
 "use client";
 
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Eye, EyeOff, Zap, CheckCircle, XCircle, Loader2, Clock } from "lucide-react";
+import {
+  Eye, EyeOff, Zap, CheckCircle, XCircle, Loader2, Clock,
+  History, Trash2,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-
-const COOKIE_NAME = "typesense_connection";
+import { getSavedConfig, clearSavedConfig, timeSinceSaved } from "@/lib/savedConfig";
+import { persistConfig } from "@/lib/savedConfig";
+import { CONNECTION_CONFIG_COOKIE } from "@/lib/utils";
 
 function saveConnectionCookie(config: {
   host: string;
@@ -17,13 +21,14 @@ function saveConnectionCookie(config: {
   const value = encodeURIComponent(JSON.stringify(config));
   const expires = new Date();
   expires.setFullYear(expires.getFullYear() + 1);
-  document.cookie = `${COOKIE_NAME}=${value}; expires=${expires.toUTCString()}; path=/; SameSite=Strict`;
+  document.cookie = `${CONNECTION_CONFIG_COOKIE}=${value}; expires=${expires.toUTCString()}; path=/; SameSite=Strict`;
 }
 
 function LoginPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionExpired = searchParams.get("reason") === "idle";
+  const manualLogout = searchParams.get("reason") === "manual";
 
   const [host, setHost] = useState("localhost");
   const [port, setPort] = useState("8108");
@@ -33,8 +38,34 @@ function LoginPageInner() {
 
   const [status, setStatus] = useState<"idle" | "connecting" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
-
   const [errors, setErrors] = useState<{ host?: string; apiKey?: string; port?: string }>({});
+
+  // Remembered config from localStorage
+  const [savedConfig, setSavedConfig] = useState<ReturnType<typeof getSavedConfig>>(null);
+  const [prefilledFrom, setPrefilledFrom] = useState(false);
+
+  // On mount: load saved config and pre-fill form
+  useEffect(() => {
+    const saved = getSavedConfig();
+    if (saved) {
+      setSavedConfig(saved);
+      setHost(saved.host);
+      setPort(saved.port.toString());
+      setProtocol(saved.protocol);
+      setApiKey(saved.apiKey);
+      setPrefilledFrom(true);
+    }
+  }, []);
+
+  const handleForgetCredentials = () => {
+    clearSavedConfig();
+    setSavedConfig(null);
+    setPrefilledFrom(false);
+    setHost("localhost");
+    setPort("8108");
+    setProtocol("http");
+    setApiKey("");
+  };
 
   const validate = () => {
     const e: typeof errors = {};
@@ -70,13 +101,15 @@ function LoginPageInner() {
 
       if (res.ok && data.ok) {
         setStatus("success");
-        saveConnectionCookie({
+        const config = {
           host: host.trim(),
           port: parseInt(port, 10),
           protocol,
           apiKey: apiKey.trim(),
-        });
-        // Brief success flash, then redirect
+        };
+        // Save to session cookie + extend 30-day localStorage window
+        saveConnectionCookie(config);
+        persistConfig(config);
         setTimeout(() => router.push("/"), 600);
       } else {
         setStatus("error");
@@ -93,6 +126,7 @@ function LoginPageInner() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <div className="w-14 h-14 bg-brand rounded-2xl flex items-center justify-center shadow-lg mb-4">
@@ -110,12 +144,41 @@ function LoginPageInner() {
           </div>
         )}
 
+        {/* Manual logout notice */}
+        {manualLogout && (
+          <div className="flex items-center gap-3 bg-slate-500/10 border border-slate-500/30 rounded-xl px-4 py-3 mb-4 text-slate-300 text-sm">
+            <CheckCircle className="h-4 w-4 flex-shrink-0" />
+            <span>You&apos;ve been logged out successfully.</span>
+          </div>
+        )}
+
+        {/* Pre-filled from saved config banner */}
+        {prefilledFrom && savedConfig && (
+          <div className="flex items-center justify-between gap-3 bg-brand/10 border border-brand/30 rounded-xl px-4 py-3 mb-4">
+            <div className="flex items-center gap-2 text-sm text-blue-300 min-w-0">
+              <History className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">
+                Last connected to{" "}
+                <span className="font-mono font-medium text-blue-200">{savedConfig.host}</span>
+                {" "}&mdash; {timeSinceSaved(savedConfig.savedAt)}
+              </span>
+            </div>
+            <button
+              onClick={handleForgetCredentials}
+              title="Forget saved credentials"
+              className="flex-shrink-0 p-1 text-slate-400 hover:text-red-400 transition-colors"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+
         {/* Card */}
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <form onSubmit={handleConnect} noValidate className="space-y-5">
-            {/* Protocol + Host row */}
+
+            {/* Protocol + Host */}
             <div className="flex gap-3">
-              {/* Protocol selector */}
               <div className="w-28 flex-shrink-0">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Protocol</label>
                 <select
@@ -130,20 +193,16 @@ function LoginPageInner() {
                 </select>
               </div>
 
-              {/* Host */}
               <div className="flex-1">
                 <Input
                   label="Host"
                   value={host}
-                  onChange={(e) => {
-                    setHost(e.target.value);
-                    setErrors((prev) => ({ ...prev, host: undefined }));
-                  }}
+                  onChange={(e) => { setHost(e.target.value); setErrors((p) => ({ ...p, host: undefined })); }}
                   placeholder="localhost"
                   error={errors.host}
                   required
                   autoComplete="off"
-                  autoFocus
+                  autoFocus={!prefilledFrom}
                 />
               </div>
             </div>
@@ -152,10 +211,7 @@ function LoginPageInner() {
             <Input
               label="Port"
               value={port}
-              onChange={(e) => {
-                setPort(e.target.value);
-                setErrors((prev) => ({ ...prev, port: undefined }));
-              }}
+              onChange={(e) => { setPort(e.target.value); setErrors((p) => ({ ...p, port: undefined })); }}
               placeholder="8108"
               type="number"
               min="1"
@@ -167,10 +223,7 @@ function LoginPageInner() {
             <Input
               label="API Key"
               value={apiKey}
-              onChange={(e) => {
-                setApiKey(e.target.value);
-                setErrors((prev) => ({ ...prev, apiKey: undefined }));
-              }}
+              onChange={(e) => { setApiKey(e.target.value); setErrors((p) => ({ ...p, apiKey: undefined })); }}
               placeholder="Enter your Typesense admin API key"
               type={showApiKey ? "text" : "password"}
               error={errors.apiKey}
@@ -188,14 +241,13 @@ function LoginPageInner() {
               }
             />
 
-            {/* Status message */}
+            {/* Status messages */}
             {status === "error" && (
               <div className="flex items-start gap-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
                 <XCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                 <span>{errorMsg}</span>
               </div>
             )}
-
             {status === "success" && (
               <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-3">
                 <CheckCircle className="h-4 w-4 flex-shrink-0" />
@@ -204,50 +256,29 @@ function LoginPageInner() {
             )}
 
             {/* Submit */}
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              loading={isConnecting}
-              className="w-full"
-            >
+            <Button type="submit" variant="primary" size="lg" loading={isConnecting} className="w-full">
               {isConnecting ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Connecting…
-                </>
+                <><Loader2 className="h-4 w-4 animate-spin" /> Connecting…</>
               ) : (
-                "Connect"
+                prefilledFrom ? "Reconnect" : "Connect"
               )}
             </Button>
           </form>
 
-          {/* Defaults hint */}
-          <div className="mt-6 pt-5 border-t border-gray-100">
-            <p className="text-xs text-gray-400 text-center mb-3">Default values</p>
-            <div className="grid grid-cols-2 gap-2 font-mono text-xs text-gray-500">
-              <div className="bg-gray-50 rounded px-3 py-1.5">
-                <span className="text-gray-400">HOST</span>
-                <span className="float-right text-gray-700">localhost</span>
-              </div>
-              <div className="bg-gray-50 rounded px-3 py-1.5">
-                <span className="text-gray-400">PORT</span>
-                <span className="float-right text-gray-700">8108</span>
-              </div>
-              <div className="bg-gray-50 rounded px-3 py-1.5">
-                <span className="text-gray-400">PROTOCOL</span>
-                <span className="float-right text-gray-700">http</span>
-              </div>
-              <div className="bg-gray-50 rounded px-3 py-1.5">
-                <span className="text-gray-400">API KEY</span>
-                <span className="float-right text-gray-700">••••••••</span>
-              </div>
-            </div>
+          {/* Privacy note */}
+          <div className="mt-6 pt-5 border-t border-gray-100 space-y-2">
+            <p className="text-xs text-gray-400 text-center">
+              Credentials are stored only in your browser (cookie + localStorage).
+              Nothing is ever sent to a third-party server.
+            </p>
+            <p className="text-xs text-gray-400 text-center">
+              Remembered for <span className="font-medium text-gray-500">30 days</span> — resets on each login.
+            </p>
           </div>
         </div>
 
-        <p className="text-center text-slate-500 text-xs mt-6">
-          Credentials are stored in your browser and never sent to a third party.
+        <p className="text-center text-slate-600 text-xs mt-4">
+          Your data stays on your device. No accounts. No tracking.
         </p>
       </div>
     </div>

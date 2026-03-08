@@ -103,13 +103,14 @@ export function SettingsForm({ serverEnv }: Props) {
   };
 
   const handleReset = () => {
+    // clearConfig removes both the session cookie AND the localStorage saved config
     clearConfig();
     setHost("localhost");
     setPort("8108");
     setProtocol("http");
     setApiKey("");
     setTestStatus("idle");
-    success("Settings reset to defaults");
+    success("Settings cleared — saved credentials removed from this browser");
   };
 
   const testStatusColors = {
@@ -133,9 +134,9 @@ export function SettingsForm({ serverEnv }: Props) {
   return (
     <div>
       <Header />
-      <div className="p-6 max-w-2xl space-y-6">
+      <div className="p-4 sm:p-6 max-w-2xl space-y-4 sm:space-y-6">
         {/* Connection Settings */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
               <Settings className="h-5 w-5 text-gray-600" />
@@ -151,8 +152,8 @@ export function SettingsForm({ serverEnv }: Props) {
           </div>
 
           <div className="space-y-4">
-            <div className="grid grid-cols-3 gap-4">
-              <div className="col-span-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="sm:col-span-2">
                 <Input
                   label="Host"
                   value={host}
@@ -227,7 +228,7 @@ export function SettingsForm({ serverEnv }: Props) {
             </div>
           )}
 
-          <div className="flex gap-3 mt-6">
+          <div className="flex flex-wrap gap-3 mt-6">
             <Button
               variant="outline"
               onClick={handleTest}
@@ -251,7 +252,7 @@ export function SettingsForm({ serverEnv }: Props) {
         </div>
 
         {/* Server-side env info */}
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 sm:p-6">
           <h3 className="text-sm font-semibold text-blue-900 mb-2">
             Server-Side Configuration
           </h3>
@@ -275,14 +276,14 @@ export function SettingsForm({ serverEnv }: Props) {
         </div>
 
         {/* Current env config — values come from the server */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <Server className="h-4 w-4 text-gray-500" />
             <h3 className="text-sm font-semibold text-gray-700">
               Current Environment Configuration
             </h3>
           </div>
-          <div className="space-y-2 text-sm">
+          <div className="space-y-2 text-sm overflow-x-auto">
             {envRows.map(({ label, value, fallback }) => (
               <div key={label} className="flex items-center gap-3">
                 <code className="font-mono text-xs text-gray-500 w-48 shrink-0">

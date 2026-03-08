@@ -78,7 +78,7 @@ export function OverridesList({ collectionName }: OverridesListProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold text-gray-900">
             Curation Rules (Overrides)
@@ -87,7 +87,7 @@ export function OverridesList({ collectionName }: OverridesListProps) {
             {overrides.length} rule{overrides.length !== 1 ? "s" : ""} defined
           </p>
         </div>
-        <Button variant="primary" onClick={() => setCreateOpen(true)}>
+        <Button variant="primary" onClick={() => setCreateOpen(true)} className="self-start sm:self-auto">
           Add Override
         </Button>
       </div>
