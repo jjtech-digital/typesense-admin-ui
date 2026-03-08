@@ -53,7 +53,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     if (!tsRes.ok) {
       const msg = tsData?.message || `Typesense error (${tsRes.status})`;
       return NextResponse.json(
-        { error: msg, status: tsRes.status, url: tsUrl.replace(cfg.apiKey, "***") },
+        { error: msg, status: tsRes.status },
         { status: tsRes.status }
       );
     }

@@ -60,7 +60,8 @@ export function useConnectionConfig() {
       const value = encodeURIComponent(JSON.stringify(config));
       const expires = new Date();
       expires.setFullYear(expires.getFullYear() + 1);
-      document.cookie = `${CONNECTION_CONFIG_COOKIE}=${value}; expires=${expires.toUTCString()}; path=/; SameSite=Strict`;
+      const secure = window.location.protocol === "https:" ? "; Secure" : "";
+      document.cookie = `${CONNECTION_CONFIG_COOKIE}=${value}; expires=${expires.toUTCString()}; path=/; SameSite=Strict${secure}`;
 
       // 2. Persist to localStorage with 30-day sliding window (client-only, never sent to server)
       persistConfig(config);

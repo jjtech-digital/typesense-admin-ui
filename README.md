@@ -1,6 +1,6 @@
 # Typesense Admin UI
 
-A modern, full-featured admin dashboard for [Typesense](https://typesense.org/) — built with Next.js 14, TypeScript, and Tailwind CSS. Manage collections, documents, synonyms, overrides, and API keys through an intuitive web interface.
+A modern, full-featured admin dashboard for [Typesense](https://typesense.org/) — built with Next.js 16, TypeScript, and Tailwind CSS. Manage collections, documents, synonyms, overrides, and API keys through an intuitive web interface.
 
 ## Screenshots
 
@@ -25,6 +25,14 @@ A modern, full-featured admin dashboard for [Typesense](https://typesense.org/) 
   - [Search Overrides (Curation)](#search-overrides-curation)
   - [API Keys](#api-keys)
   - [Settings](#settings)
+- [Deploying to Vercel](#deploying-to-vercel)
+  - [One-Click Deploy](#one-click-deploy)
+  - [Deploy via Vercel CLI](#deploy-via-vercel-cli)
+  - [Deploy via GitHub Integration](#deploy-via-github-integration)
+  - [Environment Variables on Vercel](#environment-variables-on-vercel)
+  - [Custom Domain](#custom-domain)
+  - [Vercel Project Settings](#vercel-project-settings)
+- [Security](#security)
 - [Project Structure](#project-structure)
 - [API Routes](#api-routes)
 - [Responsive Design](#responsive-design)
@@ -52,7 +60,7 @@ A modern, full-featured admin dashboard for [Typesense](https://typesense.org/) 
 
 | Technology | Purpose |
 |---|---|
-| [Next.js 14](https://nextjs.org/) | React framework (App Router) |
+| [Next.js 16](https://nextjs.org/) | React framework (App Router) |
 | [TypeScript 5](https://www.typescriptlang.org/) | Type safety |
 | [React 19](https://react.dev/) | UI library |
 | [Tailwind CSS 3.4](https://tailwindcss.com/) | Styling |
@@ -357,6 +365,149 @@ Configure the Typesense connection:
 - **Reset** — Clear all stored credentials
 
 The settings page also displays the current server-side environment variable configuration (read-only) for reference.
+
+---
+
+## Deploying to Vercel
+
+This app is optimized for [Vercel](https://vercel.com/) — the platform built by the creators of Next.js. No additional configuration is needed beyond setting environment variables.
+
+### One-Click Deploy
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/YOUR_USERNAME/typesense-admin-ui&env=TYPESENSE_HOST,TYPESENSE_PORT,TYPESENSE_PROTOCOL,TYPESENSE_API_KEY&envDescription=Typesense%20server%20connection%20details&project-name=typesense-admin-ui)
+
+> Replace `YOUR_USERNAME/typesense-admin-ui` with your actual GitHub repository URL.
+
+### Deploy via Vercel CLI
+
+1. Install the Vercel CLI:
+
+```bash
+npm i -g vercel
+```
+
+2. Login to Vercel:
+
+```bash
+vercel login
+```
+
+3. From the project root, run:
+
+```bash
+vercel
+```
+
+4. Follow the prompts:
+   - **Set up and deploy?** Yes
+   - **Which scope?** Select your Vercel account or team
+   - **Link to existing project?** No (for first deploy)
+   - **Project name?** `typesense-admin-ui` (or your preferred name)
+   - **Directory?** `./` (default)
+   - **Override settings?** No
+
+5. Set environment variables:
+
+```bash
+vercel env add TYPESENSE_HOST
+vercel env add TYPESENSE_PORT
+vercel env add TYPESENSE_PROTOCOL
+vercel env add TYPESENSE_API_KEY
+```
+
+6. Deploy to production:
+
+```bash
+vercel --prod
+```
+
+### Deploy via GitHub Integration
+
+1. Push your code to a GitHub repository
+2. Go to [vercel.com/new](https://vercel.com/new)
+3. Click **Import** next to your repository
+4. Configure the project:
+   - **Framework Preset:** Next.js (auto-detected)
+   - **Root Directory:** `./` (default)
+   - **Build Command:** `next build` (default)
+   - **Output Directory:** `.next` (default)
+   - **Install Command:** `npm install` (default)
+5. Add environment variables (see below)
+6. Click **Deploy**
+
+After the initial deploy, every push to `main` will automatically trigger a new production deployment. Pull requests get automatic preview deployments.
+
+### Environment Variables on Vercel
+
+Go to your project on Vercel → **Settings** → **Environment Variables** and add:
+
+| Variable | Value | Environment |
+|---|---|---|
+| `TYPESENSE_HOST` | Your Typesense server hostname (e.g., `ts.example.com`) | Production, Preview, Development |
+| `TYPESENSE_PORT` | Port number (e.g., `443` for Typesense Cloud, `8108` for self-hosted) | Production, Preview, Development |
+| `TYPESENSE_PROTOCOL` | `https` (recommended for production) or `http` | Production, Preview, Development |
+| `TYPESENSE_API_KEY` | Your Typesense admin API key | Production, Preview, Development |
+| `TYPESENSE_CONNECTION_TIMEOUT_SECONDS` | Connection timeout (optional, default: `5`) | Production, Preview, Development |
+
+**Important notes:**
+- All environment variables are **server-side only** — they are never exposed to the browser bundle
+- Users can also configure connections at runtime via the `/login` page, which stores credentials in a browser cookie. This takes precedence over environment variables.
+- For Typesense Cloud, use `TYPESENSE_PORT=443` and `TYPESENSE_PROTOCOL=https`
+- For self-hosted Typesense behind a reverse proxy with SSL, use port `443` and protocol `https`
+
+### Custom Domain
+
+1. Go to your Vercel project → **Settings** → **Domains**
+2. Add your custom domain (e.g., `admin.example.com`)
+3. Update your DNS records as instructed by Vercel
+4. SSL certificates are provisioned automatically
+
+### Vercel Project Settings
+
+Recommended settings for production:
+
+| Setting | Value | Location |
+|---|---|---|
+| Framework Preset | Next.js | General |
+| Node.js Version | 20.x | General |
+| Build Command | `next build` | General |
+| Output Directory | `.next` | General |
+| Function Region | Choose closest to your Typesense server | Functions |
+
+**Tip:** Select a Vercel Function Region close to your Typesense server to minimize latency. For example, if your Typesense server is in `us-east-1`, choose `iad1` (Washington, D.C.) as your function region.
+
+---
+
+## Security
+
+### How Credentials Are Handled
+
+This application does **not** store any API keys or Typesense credentials on the server. All credential storage is client-side:
+
+| Storage | Purpose | Lifetime | Scope |
+|---|---|---|---|
+| Browser Cookie (`typesense_connection`) | Active session — used by API route proxies | 1 year | Same-site only |
+| localStorage | "Remember me" — pre-fills login form | 30-day sliding window | Browser only |
+| Server env vars (`.env.local`) | Fallback when no cookie is present | Process lifetime | Server only |
+
+### Security Measures
+
+- **No server-side credential storage** — The app is stateless. Credentials come from cookies, headers, or environment variables per-request.
+- **API keys are never exposed in the browser bundle** — Server env vars do not use the `NEXT_PUBLIC_` prefix.
+- **API keys are masked in the UI** — Only the first 4 and last 4 characters are shown (e.g., `abcd••••••wxyz`).
+- **Cookies use `SameSite=Strict`** — Prevents CSRF attacks. The `Secure` flag is added automatically on HTTPS connections.
+- **Security headers** — `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, and `Referrer-Policy: strict-origin-when-cross-origin` are set on all responses.
+- **No credentials in URLs** — API keys are transmitted via HTTP headers, never in query parameters or URL paths.
+- **Error messages are sanitized** — Internal server details and API keys are never included in error responses.
+- **Session idle timeout** — Users are automatically logged out after 1 hour of inactivity.
+- **Credential transmission** — All API calls from the browser go either to the same-origin Next.js API proxy or directly to your Typesense server. No third-party services receive your credentials.
+
+### Recommendations for Production
+
+1. **Always use HTTPS** — Vercel provides this automatically. For self-hosted deployments, use a reverse proxy (nginx, Caddy) with SSL.
+2. **Use scoped API keys** — Avoid using the admin API key in the environment. Create a key with only the permissions this UI needs.
+3. **Restrict network access** — If possible, limit your Typesense server's firewall to accept connections only from your Vercel deployment's IP range.
+4. **Enable Vercel Authentication** — For added security, enable [Vercel Authentication](https://vercel.com/docs/security/deployment-protection) to require login before accessing the admin UI.
 
 ---
 

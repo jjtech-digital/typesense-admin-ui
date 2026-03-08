@@ -8,8 +8,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { getSavedConfig, clearSavedConfig, timeSinceSaved } from "@/lib/savedConfig";
-import { persistConfig } from "@/lib/savedConfig";
+import { getSavedConfig, clearSavedConfig, timeSinceSaved, persistConfig } from "@/lib/savedConfig";
 import { CONNECTION_CONFIG_COOKIE } from "@/lib/utils";
 
 function saveConnectionCookie(config: {
@@ -21,7 +20,8 @@ function saveConnectionCookie(config: {
   const value = encodeURIComponent(JSON.stringify(config));
   const expires = new Date();
   expires.setFullYear(expires.getFullYear() + 1);
-  document.cookie = `${CONNECTION_CONFIG_COOKIE}=${value}; expires=${expires.toUTCString()}; path=/; SameSite=Strict`;
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${CONNECTION_CONFIG_COOKIE}=${value}; expires=${expires.toUTCString()}; path=/; SameSite=Strict${secure}`;
 }
 
 function LoginPageInner() {

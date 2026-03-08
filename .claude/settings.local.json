@@ -10,7 +10,8 @@
       "Bash(node:*)",
       "Bash(gh api:*)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "WebFetch(domain:typesense.org)"
+      "WebFetch(domain:typesense.org)",
+      "Bash(npx eslint:*)"
     ]
   }
 }

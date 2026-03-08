@@ -48,7 +48,7 @@ export default function SynonymsPage() {
         </div>
 
         <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
-          <SynonymsList collectionName={name} />
+          <SynonymsList />
         </div>
       </div>
     </div>

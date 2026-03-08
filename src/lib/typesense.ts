@@ -10,7 +10,7 @@ function getTypesenseConfig(): ConfigurationOptions {
   const protocol = (process.env.TYPESENSE_PROTOCOL || "http") as
     | "http"
     | "https";
-  const apiKey = process.env.TYPESENSE_API_KEY || "xyz";
+  const apiKey = process.env.TYPESENSE_API_KEY || "";
   const connectionTimeoutSeconds = parseInt(
     process.env.TYPESENSE_CONNECTION_TIMEOUT_SECONDS || "5",
     10
@@ -88,7 +88,7 @@ export function getConfigFromRequest(request: Request): {
     host: process.env.TYPESENSE_HOST || "localhost",
     port: parseInt(process.env.TYPESENSE_PORT || "8108", 10),
     protocol: (process.env.TYPESENSE_PROTOCOL || "http") as "http" | "https",
-    apiKey: process.env.TYPESENSE_API_KEY || "xyz",
+    apiKey: process.env.TYPESENSE_API_KEY || "",
   };
 }
 

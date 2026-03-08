@@ -29,11 +29,7 @@ import { useConnectionConfig } from "@/hooks/useConnectionConfig";
 import { CreateSynonymModal } from "./CreateSynonymModal";
 import { BulkUploadSynonymsModal } from "./BulkUploadSynonymsModal";
 
-interface SynonymsListProps {
-  collectionName: string;
-}
-
-export function SynonymsList({ collectionName: _collectionName }: SynonymsListProps) {
+export function SynonymsList() {
   const [sets, setSets] = useState<SynonymSet[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedSets, setExpandedSets] = useState<Set<string>>(new Set());
