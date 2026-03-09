@@ -11,7 +11,18 @@
       "Bash(gh api:*)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:typesense.org)",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(rm:*)",
+      "WebFetch(domain:api.github.com)",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/typesense/typesense-api-spec/master/openapi.yml\" -o /tmp/typesense-openapi.yml)",
+      "Read(//tmp/**)",
+      "Bash(curl:*)",
+      "Bash(mv overrides:*)",
+      "Bash(cp:*)",
+      "Bash(wc:*)",
+      "Bash(powershell.exe:*)"
     ]
   }
 }
