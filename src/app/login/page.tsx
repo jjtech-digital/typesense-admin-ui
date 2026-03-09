@@ -1,10 +1,10 @@
 "use client";
 
-import React, { Suspense, useState, useEffect } from "react";
+import React, { Suspense, useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Eye, EyeOff, Zap, CheckCircle, XCircle, Loader2, Clock,
-  History, Trash2,
+  History, Trash2, Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -43,6 +43,8 @@ function LoginPageInner() {
   // Remembered config from localStorage
   const [savedConfig, setSavedConfig] = useState<ReturnType<typeof getSavedConfig>>(null);
   const [prefilledFrom, setPrefilledFrom] = useState(false);
+  const [importError, setImportError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // On mount: load saved config and pre-fill form
   useEffect(() => {
@@ -65,6 +67,30 @@ function LoginPageInner() {
     setPort("8108");
     setProtocol("http");
     setApiKey("");
+  };
+
+  const handleImportConfig = (file: File) => {
+    setImportError("");
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const config = JSON.parse(e.target?.result as string);
+        if (!config.host || !config.apiKey) {
+          setImportError("Invalid config file: host and apiKey are required");
+          return;
+        }
+        setHost(config.host);
+        setPort(String(config.port || 8108));
+        setProtocol(config.protocol === "https" ? "https" : "http");
+        setApiKey(config.apiKey);
+        setPrefilledFrom(false);
+        setErrors({});
+        setStatus("idle");
+      } catch {
+        setImportError("Invalid JSON file");
+      }
+    };
+    reader.readAsText(file);
   };
 
   const validate = () => {
@@ -240,6 +266,36 @@ function LoginPageInner() {
                 </button>
               }
             />
+
+            {/* Import config */}
+            <div className="flex items-center gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json,application/json"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleImportConfig(file);
+                  e.target.value = "";
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-brand transition-colors"
+              >
+                <Upload className="h-3.5 w-3.5" />
+                Import config file
+              </button>
+              <span className="text-xs text-slate-600">(.json exported from Settings)</span>
+            </div>
+            {importError && (
+              <div className="flex items-start gap-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+                <XCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                <span>{importError}</span>
+              </div>
+            )}
 
             {/* Status messages */}
             {status === "error" && (

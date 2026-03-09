@@ -119,7 +119,7 @@ export function CollectionCard({ collection, onDelete }: CollectionCardProps) {
           Synonyms
         </Link>
         <Link
-          href={`/collections/${collection.name}/overrides`}
+          href={`/collections/${collection.name}/rules`}
           className="flex items-center justify-center gap-2 py-2 px-3 bg-gray-50 hover:bg-gray-100 rounded-lg text-sm font-medium text-gray-600 transition-colors"
         >
           Rules

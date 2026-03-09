@@ -136,12 +136,16 @@ export type SynonymType = "one-way" | "multi-way";
 // Legacy alias kept for any remaining references
 export type TypesenseSynonym = SynonymItem;
 
+export interface TypesenseOverrideRule {
+  query: string;
+  match: "exact" | "contains";
+  filter_by?: string;
+  tags?: string[];
+}
+
 export interface TypesenseOverride {
   id: string;
-  rule: {
-    query: string;
-    match: "exact" | "contains";
-  };
+  rule: TypesenseOverrideRule;
   includes?: {
     id: string;
     position: number;
@@ -153,15 +157,15 @@ export interface TypesenseOverride {
   sort_by?: string;
   replace_query?: string;
   remove_matched_tokens?: boolean;
-  effect_duration_days?: number;
+  filter_curated_hits?: boolean;
+  effective_from_ts?: number;
+  effective_to_ts?: number;
+  metadata?: Record<string, unknown>;
   stop_processing?: boolean;
 }
 
 export interface TypesenseOverrideCreate {
-  rule: {
-    query: string;
-    match: "exact" | "contains";
-  };
+  rule: TypesenseOverrideRule;
   includes?: {
     id: string;
     position: number;
@@ -173,6 +177,10 @@ export interface TypesenseOverrideCreate {
   sort_by?: string;
   replace_query?: string;
   remove_matched_tokens?: boolean;
+  filter_curated_hits?: boolean;
+  effective_from_ts?: number;
+  effective_to_ts?: number;
+  metadata?: Record<string, unknown>;
   stop_processing?: boolean;
 }
 

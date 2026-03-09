@@ -8,99 +8,22 @@ import { Button } from "@/components/ui/Button";
 import { getFieldTypeColor } from "@/lib/utils";
 import { useConnectionConfig } from "@/hooks/useConnectionConfig";
 import { useToast } from "@/components/ui/Toast";
-
-const FIELD_TYPES: TypesenseFieldType[] = [
-  "string", "string[]", "int32", "int32[]", "int64", "int64[]",
-  "float", "float[]", "bool", "bool[]", "geopoint", "geopoint[]",
-  "auto", "object", "object[]", "image", "string*",
-];
-
-/** Boolean field options editable via the PATCH API */
-const TOGGLE_OPTIONS = [
-  { key: "facet", label: "Facet", desc: "Enable faceted search", variant: "info" as const },
-  { key: "optional", label: "Optional", desc: "Field can be omitted", variant: "warning" as const },
-  { key: "sort", label: "Sort", desc: "Enable sorting", variant: "success" as const },
-  { key: "infix", label: "Infix", desc: "Substring search", variant: "default" as const },
-  { key: "index", label: "Index", desc: "Index this field", variant: "info" as const },
-  { key: "stem", label: "Stem", desc: "Apply stemming", variant: "default" as const },
-  { key: "store", label: "Store", desc: "Store on disk", variant: "default" as const },
-  { key: "range_index", label: "Range Index", desc: "Optimize range filtering", variant: "default" as const },
-] as const;
-
-type ToggleKey = (typeof TOGGLE_OPTIONS)[number]["key"];
+import {
+  FIELD_TYPES,
+  TOGGLE_OPTIONS,
+  type ToggleKey,
+  type NewField,
+  type EditState,
+  blankField,
+  fieldToEditState,
+  hasChanges,
+  badgeActiveClass,
+} from "@/components/collections/schema-types";
+import { FieldOptionsGrid } from "@/components/collections/FieldOptionsGrid";
 
 interface SchemaEditorProps {
   collection: TypesenseCollection;
   onUpdated: () => void;
-}
-
-interface NewField {
-  name: string;
-  type: TypesenseFieldType;
-  facet: boolean;
-  optional: boolean;
-  index: boolean;
-  sort: boolean;
-  infix: boolean;
-  locale: string;
-  stem: boolean;
-  store: boolean;
-  range_index: boolean;
-}
-
-interface EditState {
-  facet: boolean;
-  optional: boolean;
-  sort: boolean;
-  infix: boolean;
-  index: boolean;
-  stem: boolean;
-  store: boolean;
-  range_index: boolean;
-  locale: string;
-}
-
-const blankField = (): NewField => ({
-  name: "",
-  type: "string",
-  facet: false,
-  optional: false,
-  index: true,
-  sort: false,
-  infix: false,
-  locale: "",
-  stem: false,
-  store: true,
-  range_index: false,
-});
-
-function fieldToEditState(field: TypesenseField): EditState {
-  return {
-    facet: field.facet ?? false,
-    optional: field.optional ?? false,
-    sort: field.sort ?? false,
-    infix: field.infix ?? false,
-    index: field.index !== false,
-    stem: field.stem ?? false,
-    store: field.store !== false,
-    range_index: field.range_index ?? false,
-    locale: field.locale ?? "",
-  };
-}
-
-function hasChanges(original: TypesenseField, edited: EditState): boolean {
-  const orig = fieldToEditState(original);
-  return (
-    orig.facet !== edited.facet ||
-    orig.optional !== edited.optional ||
-    orig.sort !== edited.sort ||
-    orig.infix !== edited.infix ||
-    orig.index !== edited.index ||
-    orig.stem !== edited.stem ||
-    orig.store !== edited.store ||
-    orig.range_index !== edited.range_index ||
-    orig.locale !== edited.locale
-  );
 }
 
 export function SchemaEditor({ collection, onUpdated }: SchemaEditorProps) {
@@ -558,45 +481,4 @@ export function SchemaEditor({ collection, onUpdated }: SchemaEditorProps) {
       )}
     </div>
   );
-}
-
-// ── Shared checkbox grid for add-field form ──────────────────────────────────
-
-function FieldOptionsGrid({
-  state,
-  onChange,
-}: {
-  state: { facet: boolean; optional: boolean; sort: boolean; infix: boolean; index: boolean; stem: boolean; store: boolean; range_index: boolean };
-  onChange: (key: string, value: boolean) => void;
-}) {
-  return (
-    <div>
-      <label className="block text-xs font-medium text-gray-600 mb-2">Options</label>
-      <div className="flex flex-wrap gap-x-5 gap-y-2">
-        {TOGGLE_OPTIONS.map(({ key, label, desc }) => (
-          <label key={key} className="flex items-center gap-1.5 cursor-pointer" title={desc}>
-            <input
-              type="checkbox"
-              checked={state[key as ToggleKey] as boolean}
-              onChange={(e) => onChange(key, e.target.checked)}
-              className="rounded border-gray-300 text-brand focus:ring-brand h-3.5 w-3.5"
-            />
-            <span className="text-xs text-gray-700">{label}</span>
-          </label>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ── Badge active class helper ────────────────────────────────────────────────
-
-function badgeActiveClass(variant: "info" | "warning" | "success" | "danger" | "default"): string {
-  switch (variant) {
-    case "info": return "bg-blue-50 border-blue-200 text-blue-700";
-    case "warning": return "bg-yellow-50 border-yellow-200 text-yellow-700";
-    case "success": return "bg-green-50 border-green-200 text-green-700";
-    case "danger": return "bg-red-50 border-red-200 text-red-700";
-    default: return "bg-gray-100 border-gray-200 text-gray-600";
-  }
 }

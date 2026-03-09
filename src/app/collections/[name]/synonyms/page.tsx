@@ -26,11 +26,11 @@ export default function SynonymsPage() {
           </Link>
           <div className="ml-auto">
             <Link
-              href={`/collections/${name}/overrides`}
+              href={`/collections/${name}/rules`}
               className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
             >
               <Filter className="h-4 w-4" />
-              View Overrides
+              Curation Rules
             </Link>
           </div>
         </div>

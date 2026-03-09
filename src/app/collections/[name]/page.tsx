@@ -71,11 +71,11 @@ export default function CollectionDetailPage() {
               <span className="sm:hidden">Syn</span>
             </Link>
             <Link
-              href={`/collections/${name}/overrides`}
+              href={`/collections/${name}/rules`}
               className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs sm:text-sm font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
             >
               <Filter className="h-4 w-4" />
-              <span className="hidden sm:inline">Overrides</span>
+              <span className="hidden sm:inline">Curation Rules</span>
               <span className="sm:hidden">Rules</span>
             </Link>
           </div>

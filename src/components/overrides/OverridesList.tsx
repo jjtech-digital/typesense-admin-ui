@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { Trash2, Edit2, Filter, Plus, Minus } from "lucide-react";
 import type { TypesenseOverride } from "@/types/typesense";
 import {
@@ -17,7 +18,6 @@ import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
 import { useConnectionConfig } from "@/hooks/useConnectionConfig";
-import { CreateOverrideModal } from "./CreateOverrideModal";
 
 interface OverridesListProps {
   collectionName: string;
@@ -27,9 +27,7 @@ export function OverridesList({ collectionName }: OverridesListProps) {
   const [overrides, setOverrides] = useState<TypesenseOverride[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<TypesenseOverride | null>(null);
-  const [editTarget, setEditTarget] = useState<TypesenseOverride | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [createOpen, setCreateOpen] = useState(false);
   const { success, error } = useToast();
   const { getHeaders } = useConnectionConfig();
 
@@ -66,11 +64,11 @@ export function OverridesList({ collectionName }: OverridesListProps) {
         const data = await res.json();
         throw new Error(data.error);
       }
-      success("Override deleted successfully");
+      success("Curation rule deleted successfully");
       setDeleteTarget(null);
       fetchOverrides();
     } catch (err) {
-      error(err instanceof Error ? err.message : "Failed to delete override");
+      error(err instanceof Error ? err.message : "Failed to delete curation rule");
     } finally {
       setIsDeleting(false);
     }
@@ -81,15 +79,17 @@ export function OverridesList({ collectionName }: OverridesListProps) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold text-gray-900">
-            Curation Rules (Overrides)
+            Curation Rules
           </h2>
           <p className="text-sm text-gray-500">
             {overrides.length} rule{overrides.length !== 1 ? "s" : ""} defined
           </p>
         </div>
-        <Button variant="primary" onClick={() => setCreateOpen(true)} className="self-start sm:self-auto">
-          Add Override
-        </Button>
+        <Link href={`/collections/${collectionName}/rules/new`}>
+          <Button variant="primary" className="self-start sm:self-auto">
+            Add Rule
+          </Button>
+        </Link>
       </div>
 
       <Table>
@@ -182,13 +182,13 @@ export function OverridesList({ collectionName }: OverridesListProps) {
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => setEditTarget(override)}
+                    <Link
+                      href={`/collections/${collectionName}/rules/${override.id}/edit`}
                       className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
                       title="Edit"
                     >
                       <Edit2 className="h-4 w-4" />
-                    </button>
+                    </Link>
                     <button
                       onClick={() => setDeleteTarget(override)}
                       className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
@@ -214,7 +214,7 @@ export function OverridesList({ collectionName }: OverridesListProps) {
       <Modal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        title="Delete Override"
+        title="Delete Curation Rule"
         size="sm"
         footer={
           <div className="flex gap-3 justify-end">
@@ -232,23 +232,12 @@ export function OverridesList({ collectionName }: OverridesListProps) {
         }
       >
         <p className="text-sm text-gray-600">
-          Are you sure you want to delete override{" "}
+          Are you sure you want to delete curation rule{" "}
           <strong>&ldquo;{deleteTarget?.id}&rdquo;</strong>? This action cannot
           be undone.
         </p>
       </Modal>
 
-      {/* Create/Edit modal */}
-      <CreateOverrideModal
-        isOpen={createOpen || !!editTarget}
-        onClose={() => {
-          setCreateOpen(false);
-          setEditTarget(null);
-        }}
-        collectionName={collectionName}
-        editOverride={editTarget}
-        onSuccess={fetchOverrides}
-      />
     </div>
   );
 }

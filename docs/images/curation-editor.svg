@@ -1,0 +1,271 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680">
+  <defs>
+    <filter id="shadow" x="-2%" y="-2%" width="106%" height="110%">
+      <feDropShadow dx="0" dy="1" stdDeviation="3" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="680" fill="#f8fafc"/>
+
+  <!-- Top bar -->
+  <text x="24" y="24" fill="#6b7280" font-family="system-ui, sans-serif" font-size="11">← Back</text>
+  <text x="24" y="48" fill="#0f172a" font-family="system-ui, sans-serif" font-size="17" font-weight="600">Edit Curation Rule — products</text>
+
+  <!-- Action buttons -->
+  <rect x="1010" y="14" width="80" height="32" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="1028" y="35" fill="#374151" font-family="system-ui, sans-serif" font-size="12">Preview</text>
+  <rect x="1100" y="14" width="90" height="32" rx="8" fill="#e11d48"/>
+  <text x="1114" y="35" fill="white" font-family="system-ui, sans-serif" font-size="12" font-weight="500">Update Rule</text>
+
+  <!-- ═══ LEFT PANEL: Sidebar ═══ -->
+  <rect x="24" y="68" width="200" height="600" rx="0" fill="none"/>
+
+  <!-- Conditions card -->
+  <rect x="24" y="68" width="200" height="110" rx="12" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="40" y="92" fill="#6b7280" font-family="system-ui, sans-serif" font-size="10" font-weight="700" letter-spacing="0.5">CONDITIONS</text>
+
+  <!-- Active: Query condition -->
+  <rect x="36" y="102" width="176" height="32" rx="8" fill="rgba(225,29,72,0.08)" stroke="rgba(225,29,72,0.2)" stroke-width="1"/>
+  <text x="56" y="123" fill="#e11d48" font-family="system-ui, sans-serif" font-size="12" font-weight="500">Query condition</text>
+
+  <!-- Date range -->
+  <text x="56" y="156" fill="#6b7280" font-family="system-ui, sans-serif" font-size="12">Date range</text>
+
+  <!-- Consequences card -->
+  <rect x="24" y="190" width="200" height="478" rx="12" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="40" y="216" fill="#6b7280" font-family="system-ui, sans-serif" font-size="10" font-weight="700" letter-spacing="0.5">CONSEQUENCES</text>
+
+  <!-- Pin items (enabled) -->
+  <rect x="36" y="228" width="144" height="30" rx="8" fill="#f9fafb"/>
+  <text x="56" y="248" fill="#0f172a" font-family="system-ui, sans-serif" font-size="12" font-weight="500">Pin items</text>
+  <!-- Toggle ON -->
+  <rect x="186" y="232" width="28" height="16" rx="8" fill="#e11d48"/>
+  <circle cx="205" cy="240" r="6" fill="white"/>
+
+  <!-- Hide items (disabled) -->
+  <text x="56" y="280" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="12">Hide items</text>
+  <rect x="186" y="268" width="28" height="16" rx="8" fill="#d1d5db"/>
+  <circle cx="195" cy="276" r="6" fill="white"/>
+
+  <!-- Filter results (enabled) -->
+  <rect x="36" y="296" width="144" height="30" rx="8" fill="#f9fafb"/>
+  <text x="56" y="316" fill="#0f172a" font-family="system-ui, sans-serif" font-size="12" font-weight="500">Filter results</text>
+  <rect x="186" y="300" width="28" height="16" rx="8" fill="#e11d48"/>
+  <circle cx="205" cy="308" r="6" fill="white"/>
+
+  <!-- Sort results (disabled) -->
+  <text x="56" y="348" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="12">Sort results</text>
+  <rect x="186" y="336" width="28" height="16" rx="8" fill="#d1d5db"/>
+  <circle cx="195" cy="344" r="6" fill="white"/>
+
+  <!-- Replace query (disabled) -->
+  <text x="56" y="380" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="12">Replace query</text>
+  <rect x="186" y="368" width="28" height="16" rx="8" fill="#d1d5db"/>
+  <circle cx="195" cy="376" r="6" fill="white"/>
+
+  <!-- Remove matched tokens (enabled) -->
+  <rect x="36" y="396" width="144" height="30" rx="8" fill="#f9fafb"/>
+  <text x="56" y="414" fill="#0f172a" font-family="system-ui, sans-serif" font-size="11" font-weight="500">Remove tokens</text>
+  <rect x="186" y="400" width="28" height="16" rx="8" fill="#e11d48"/>
+  <circle cx="205" cy="408" r="6" fill="white"/>
+
+  <!-- Filter curated hits (disabled) -->
+  <text x="56" y="448" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="12">Filter curated hits</text>
+  <rect x="186" y="436" width="28" height="16" rx="8" fill="#d1d5db"/>
+  <circle cx="195" cy="444" r="6" fill="white"/>
+
+  <!-- Custom metadata (disabled) -->
+  <text x="56" y="480" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="12">Custom metadata</text>
+  <rect x="186" y="468" width="28" height="16" rx="8" fill="#d1d5db"/>
+  <circle cx="195" cy="476" r="6" fill="white"/>
+
+  <!-- Stop processing (enabled) -->
+  <rect x="36" y="496" width="144" height="30" rx="8" fill="#f9fafb"/>
+  <text x="56" y="516" fill="#0f172a" font-family="system-ui, sans-serif" font-size="12" font-weight="500">Stop processing</text>
+  <rect x="186" y="500" width="28" height="16" rx="8" fill="#e11d48"/>
+  <circle cx="205" cy="508" r="6" fill="white"/>
+
+  <!-- ═══ MIDDLE PANEL: Form ═══ -->
+  <rect x="240" y="68" width="340" height="600" rx="12" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+
+  <text x="264" y="96" fill="#0f172a" font-family="system-ui, sans-serif" font-size="14" font-weight="600">Define the condition that triggers the rule</text>
+  <text x="264" y="114" fill="#6b7280" font-family="system-ui, sans-serif" font-size="11">When a search matches this condition, the consequences below will be applied.</text>
+
+  <!-- YOUR SEARCH -->
+  <text x="264" y="148" fill="#6b7280" font-family="system-ui, sans-serif" font-size="10" font-weight="700" letter-spacing="0.5">YOUR SEARCH</text>
+
+  <!-- Match type + query -->
+  <rect x="264" y="158" width="80" height="34" rx="6" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="278" y="180" fill="#374151" font-family="system-ui, sans-serif" font-size="12">contains</text>
+  <rect x="352" y="158" width="208" height="34" rx="6" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="366" y="180" fill="#0f172a" font-family="system-ui, sans-serif" font-size="13">sneakers</text>
+
+  <text x="264" y="210" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="10">If nothing is typed, the query will be considered as "empty".</text>
+
+  <!-- FILTERS -->
+  <text x="264" y="244" fill="#6b7280" font-family="system-ui, sans-serif" font-size="10" font-weight="700" letter-spacing="0.5">FILTERS</text>
+  <text x="330" y="244" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="9">(optional condition trigger)</text>
+
+  <!-- Filter row -->
+  <rect x="264" y="254" width="296" height="34" rx="6" fill="#f9fafb" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="278" y="276" fill="#374151" font-family="system-ui, sans-serif" font-size="12">brand</text>
+  <text x="328" y="276" fill="#6b7280" font-family="system-ui, sans-serif" font-size="12">:=</text>
+  <text x="350" y="276" fill="#0f172a" font-family="system-ui, sans-serif" font-size="12">Puma</text>
+  <text x="542" y="276" fill="#ef4444" font-family="system-ui, sans-serif" font-size="12">×</text>
+
+  <text x="272" y="308" fill="#e11d48" font-family="system-ui, sans-serif" font-size="11">+ Add filter</text>
+
+  <!-- SORT OVERRIDE -->
+  <text x="264" y="344" fill="#6b7280" font-family="system-ui, sans-serif" font-size="10" font-weight="700" letter-spacing="0.5">SORT OVERRIDE</text>
+  <text x="358" y="344" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="9">(optional)</text>
+  <text x="264" y="362" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="11">No sort fields defined.</text>
+  <text x="272" y="384" fill="#e11d48" font-family="system-ui, sans-serif" font-size="11">+ Add sort field</text>
+
+  <!-- PIN ITEMS section -->
+  <text x="264" y="420" fill="#6b7280" font-family="system-ui, sans-serif" font-size="10" font-weight="700" letter-spacing="0.5">PINNED ITEMS</text>
+
+  <!-- Pinned item 1 -->
+  <rect x="264" y="430" width="296" height="32" rx="6" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1"/>
+  <text x="278" y="451" fill="#065f46" font-family="monospace" font-size="11">puma-rs-x-001</text>
+  <text x="510" y="451" fill="#059669" font-family="system-ui, sans-serif" font-size="11">pos: 1</text>
+  <text x="542" y="451" fill="#ef4444" font-family="system-ui, sans-serif" font-size="12">×</text>
+
+  <!-- Pinned item 2 -->
+  <rect x="264" y="468" width="296" height="32" rx="6" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1"/>
+  <text x="278" y="489" fill="#065f46" font-family="monospace" font-size="11">puma-suede-003</text>
+  <text x="510" y="489" fill="#059669" font-family="system-ui, sans-serif" font-size="11">pos: 2</text>
+  <text x="542" y="489" fill="#ef4444" font-family="system-ui, sans-serif" font-size="12">×</text>
+
+  <!-- Add pin row -->
+  <rect x="264" y="510" width="200" height="32" rx="6" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="278" y="530" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="11">Document ID</text>
+  <rect x="470" y="510" width="42" height="32" rx="6" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="484" y="530" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="11">3</text>
+  <rect x="518" y="510" width="42" height="32" rx="6" fill="#f9fafb" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="534" y="530" fill="#374151" font-family="system-ui, sans-serif" font-size="14" text-anchor="middle">+</text>
+
+  <!-- RULE ID -->
+  <text x="264" y="568" fill="#6b7280" font-family="system-ui, sans-serif" font-size="10" font-weight="700" letter-spacing="0.5">RULE ID</text>
+  <rect x="264" y="576" width="296" height="32" rx="6" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="278" y="596" fill="#374151" font-family="monospace" font-size="11">override-sneakers-promo</text>
+
+  <!-- ═══ RIGHT PANEL: Preview ═══ -->
+  <rect x="596" y="68" width="580" height="600" rx="12" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+
+  <!-- Preview header -->
+  <text x="620" y="96" fill="#0f172a" font-family="system-ui, sans-serif" font-size="14" font-weight="600">Preview</text>
+  <text x="1100" y="96" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="11" text-anchor="end">342 found · 4ms</text>
+
+  <!-- Search bar in preview -->
+  <rect x="620" y="106" width="430" height="32" rx="6" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="640" y="127" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="11">Search preview…</text>
+
+  <!-- View toggle -->
+  <rect x="1060" y="106" width="52" height="32" rx="6" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <rect x="1060" y="106" width="26" height="32" rx="6" fill="#e11d48"/>
+  <text x="1068" y="127" fill="white" font-family="system-ui, sans-serif" font-size="9">Grid</text>
+  <text x="1092" y="127" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="9">List</text>
+
+  <!-- Product Grid -->
+  <!-- Card 1 (Pinned) -->
+  <rect x="620" y="150" width="172" height="200" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <!-- Pinned badge -->
+  <rect x="626" y="156" width="56" height="20" rx="4" fill="#dcfce7"/>
+  <text x="636" y="170" fill="#15803d" font-family="system-ui, sans-serif" font-size="9" font-weight="600">Pinned</text>
+  <!-- Position number -->
+  <rect x="624" y="156" width="0" height="0" rx="0" fill="none"/>
+  <circle cx="778" cy="164" r="10" fill="#f1f5f9"/>
+  <text x="778" y="168" fill="#6b7280" font-family="system-ui, sans-serif" font-size="10" font-weight="500" text-anchor="middle">1</text>
+  <!-- Image area -->
+  <rect x="628" y="180" width="156" height="80" rx="6" fill="#f1f5f9"/>
+  <text x="692" y="226" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="28" text-anchor="middle">👟</text>
+  <!-- Product info -->
+  <text x="636" y="278" fill="#0f172a" font-family="system-ui, sans-serif" font-size="11" font-weight="500">RS-X Reinvention</text>
+  <text x="636" y="294" fill="#6b7280" font-family="system-ui, sans-serif" font-size="10">Puma</text>
+  <text x="636" y="312" fill="#e11d48" font-family="system-ui, sans-serif" font-size="12" font-weight="600">$109.99</text>
+  <text x="690" y="312" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="10" text-decoration="line-through">$129.99</text>
+  <rect x="636" y="320" width="52" height="18" rx="4" fill="#f0fdf4"/>
+  <text x="644" y="333" fill="#15803d" font-family="system-ui, sans-serif" font-size="9">in stock</text>
+
+  <!-- Card 2 (Pinned) -->
+  <rect x="804" y="150" width="172" height="200" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <rect x="810" y="156" width="56" height="20" rx="4" fill="#dcfce7"/>
+  <text x="820" y="170" fill="#15803d" font-family="system-ui, sans-serif" font-size="9" font-weight="600">Pinned</text>
+  <circle cx="962" cy="164" r="10" fill="#f1f5f9"/>
+  <text x="962" y="168" fill="#6b7280" font-family="system-ui, sans-serif" font-size="10" font-weight="500" text-anchor="middle">2</text>
+  <rect x="812" y="180" width="156" height="80" rx="6" fill="#f1f5f9"/>
+  <text x="876" y="226" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="28" text-anchor="middle">👟</text>
+  <text x="820" y="278" fill="#0f172a" font-family="system-ui, sans-serif" font-size="11" font-weight="500">Suede Classic XXI</text>
+  <text x="820" y="294" fill="#6b7280" font-family="system-ui, sans-serif" font-size="10">Puma</text>
+  <text x="820" y="312" fill="#e11d48" font-family="system-ui, sans-serif" font-size="12" font-weight="600">$74.99</text>
+  <rect x="820" y="320" width="52" height="18" rx="4" fill="#f0fdf4"/>
+  <text x="828" y="333" fill="#15803d" font-family="system-ui, sans-serif" font-size="9">in stock</text>
+
+  <!-- Card 3 -->
+  <rect x="988" y="150" width="172" height="200" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <circle cx="1146" cy="164" r="10" fill="#f1f5f9"/>
+  <text x="1146" y="168" fill="#6b7280" font-family="system-ui, sans-serif" font-size="10" font-weight="500" text-anchor="middle">3</text>
+  <rect x="996" y="180" width="156" height="80" rx="6" fill="#f1f5f9"/>
+  <text x="1060" y="226" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="28" text-anchor="middle">👟</text>
+  <text x="1004" y="278" fill="#0f172a" font-family="system-ui, sans-serif" font-size="11" font-weight="500">Cali Sport Heritage</text>
+  <text x="1004" y="294" fill="#6b7280" font-family="system-ui, sans-serif" font-size="10">Puma</text>
+  <text x="1004" y="312" fill="#e11d48" font-family="system-ui, sans-serif" font-size="12" font-weight="600">$89.99</text>
+  <rect x="1004" y="320" width="52" height="18" rx="4" fill="#f0fdf4"/>
+  <text x="1012" y="333" fill="#15803d" font-family="system-ui, sans-serif" font-size="9">in stock</text>
+
+  <!-- Row 2 of cards -->
+  <!-- Card 4 -->
+  <rect x="620" y="362" width="172" height="200" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <circle cx="778" cy="376" r="10" fill="#f1f5f9"/>
+  <text x="778" y="380" fill="#6b7280" font-family="system-ui, sans-serif" font-size="10" font-weight="500" text-anchor="middle">4</text>
+  <rect x="628" y="392" width="156" height="80" rx="6" fill="#f1f5f9"/>
+  <text x="692" y="438" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="28" text-anchor="middle">👟</text>
+  <text x="636" y="490" fill="#0f172a" font-family="system-ui, sans-serif" font-size="11" font-weight="500">Future Rider Play</text>
+  <text x="636" y="506" fill="#6b7280" font-family="system-ui, sans-serif" font-size="10">Puma</text>
+  <text x="636" y="524" fill="#e11d48" font-family="system-ui, sans-serif" font-size="12" font-weight="600">$69.99</text>
+  <rect x="636" y="532" width="64" height="18" rx="4" fill="#fef2f2"/>
+  <text x="644" y="545" fill="#dc2626" font-family="system-ui, sans-serif" font-size="9">out of stock</text>
+
+  <!-- Card 5 -->
+  <rect x="804" y="362" width="172" height="200" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <circle cx="962" cy="376" r="10" fill="#f1f5f9"/>
+  <text x="962" y="380" fill="#6b7280" font-family="system-ui, sans-serif" font-size="10" font-weight="500" text-anchor="middle">5</text>
+  <rect x="812" y="392" width="156" height="80" rx="6" fill="#f1f5f9"/>
+  <text x="876" y="438" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="28" text-anchor="middle">👟</text>
+  <text x="820" y="490" fill="#0f172a" font-family="system-ui, sans-serif" font-size="11" font-weight="500">Mayze Wedge</text>
+  <text x="820" y="506" fill="#6b7280" font-family="system-ui, sans-serif" font-size="10">Puma</text>
+  <text x="820" y="524" fill="#e11d48" font-family="system-ui, sans-serif" font-size="12" font-weight="600">$94.99</text>
+  <rect x="820" y="532" width="52" height="18" rx="4" fill="#f0fdf4"/>
+  <text x="828" y="545" fill="#15803d" font-family="system-ui, sans-serif" font-size="9">in stock</text>
+
+  <!-- Card 6 -->
+  <rect x="988" y="362" width="172" height="200" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <circle cx="1146" cy="376" r="10" fill="#f1f5f9"/>
+  <text x="1146" y="380" fill="#6b7280" font-family="system-ui, sans-serif" font-size="10" font-weight="500" text-anchor="middle">6</text>
+  <rect x="996" y="392" width="156" height="80" rx="6" fill="#f1f5f9"/>
+  <text x="1060" y="438" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="28" text-anchor="middle">👟</text>
+  <text x="1004" y="490" fill="#0f172a" font-family="system-ui, sans-serif" font-size="11" font-weight="500">Velocity Nitro 2</text>
+  <text x="1004" y="506" fill="#6b7280" font-family="system-ui, sans-serif" font-size="10">Puma</text>
+  <text x="1004" y="524" fill="#e11d48" font-family="system-ui, sans-serif" font-size="12" font-weight="600">$139.99</text>
+  <text x="1060" y="524" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="10" text-decoration="line-through">$159.99</text>
+  <rect x="1004" y="532" width="52" height="18" rx="4" fill="#f0fdf4"/>
+  <text x="1012" y="545" fill="#15803d" font-family="system-ui, sans-serif" font-size="9">in stock</text>
+
+  <!-- Pagination -->
+  <rect x="750" y="582" width="56" height="30" rx="6" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="764" y="602" fill="#6b7280" font-family="system-ui, sans-serif" font-size="11">← Prev</text>
+
+  <rect x="818" y="582" width="28" height="30" rx="6" fill="#e11d48"/>
+  <text x="832" y="602" fill="white" font-family="system-ui, sans-serif" font-size="11" font-weight="600" text-anchor="middle">1</text>
+  <rect x="852" y="582" width="28" height="30" rx="6" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="866" y="602" fill="#374151" font-family="system-ui, sans-serif" font-size="11" text-anchor="middle">2</text>
+  <rect x="886" y="582" width="28" height="30" rx="6" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="900" y="602" fill="#374151" font-family="system-ui, sans-serif" font-size="11" text-anchor="middle">3</text>
+  <text x="926" y="602" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="11">…</text>
+  <rect x="940" y="582" width="28" height="30" rx="6" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="954" y="602" fill="#374151" font-family="system-ui, sans-serif" font-size="11" text-anchor="middle">18</text>
+
+  <rect x="980" y="582" width="56" height="30" rx="6" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="992" y="602" fill="#374151" font-family="system-ui, sans-serif" font-size="11">Next →</text>
+</svg>

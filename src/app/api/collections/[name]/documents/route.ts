@@ -19,9 +19,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     const collection = await client.collections(name).retrieve();
     const queryByFields = (collection.fields || [])
-      .filter((f: { type: string }) => f.type === "string" || f.type === "string[]")
+      .filter((f: { type: string; index?: boolean; name: string }) =>
+        (f.type === "string" || f.type === "string[]") &&
+        f.index !== false &&
+        !["image_link", "additional_image_link", "link"].includes(f.name)
+      )
       .map((f: { name: string }) => f.name)
-      .slice(0, 5)
+      .slice(0, 10)
       .join(",");
 
     const facetBy = searchParams.get("facet_by") || "";
