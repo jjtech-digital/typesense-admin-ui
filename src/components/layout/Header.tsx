@@ -27,7 +27,11 @@ function getPageTitle(pathname: string): string {
     if (segments.length === 1) return "Collections";
     if (segments.length === 2) return `Collection: ${segments[1]}`;
     if (segments[2] === "synonyms") return `Synonyms — ${segments[1]}`;
-    if (segments[2] === "overrides") return `Overrides — ${segments[1]}`;
+    if (segments[2] === "rules") {
+      if (segments[3] === "new") return `New Curation Rule — ${segments[1]}`;
+      if (segments.length >= 5 && segments[4] === "edit") return `Edit Curation Rule — ${segments[1]}`;
+      return `Curation Rules — ${segments[1]}`;
+    }
   }
   return last.charAt(0).toUpperCase() + last.slice(1).replace(/-/g, " ");
 }

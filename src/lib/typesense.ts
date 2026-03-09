@@ -64,6 +64,33 @@ export function getClientFromRequest(request: Request): Client {
   return getTypesenseClientFromConfig(config);
 }
 
+/**
+ * Make a direct REST call to the Typesense server.
+ * Used for v30+ endpoints not yet in the typesense npm client (e.g. curation_sets).
+ */
+export async function typesenseFetch(
+  request: Request,
+  path: string,
+  options: { method?: string; body?: unknown } = {}
+): Promise<Response> {
+  const config = getConfigFromRequest(request);
+  if (!config) throw new Error("No Typesense connection configured. Please log in first.");
+
+  const isDefault =
+    (config.protocol === "https" && config.port === 443) ||
+    (config.protocol === "http" && config.port === 80);
+  const baseUrl = `${config.protocol}://${config.host}${isDefault ? "" : `:${config.port}`}`;
+
+  const headers: Record<string, string> = { "X-TYPESENSE-API-KEY": config.apiKey };
+  if (options.body) headers["Content-Type"] = "application/json";
+
+  return fetch(`${baseUrl}${path}`, {
+    method: options.method || "GET",
+    headers,
+    ...(options.body ? { body: JSON.stringify(options.body) } : {}),
+  });
+}
+
 export function formatApiError(error: unknown): {
   message: string;
   status: number;

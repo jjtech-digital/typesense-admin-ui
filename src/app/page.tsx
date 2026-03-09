@@ -1,23 +1,16 @@
 import Link from "next/link";
-import {
-  Database,
-  Key,
-  FileText,
-  Activity,
-  CheckCircle,
-  XCircle,
-  ArrowRight,
-  Zap,
-} from "lucide-react";
+import { Zap, XCircle } from "lucide-react";
 import { cookies } from "next/headers";
 import { getTypesenseClientFromConfig } from "@/lib/typesense";
 import {
-  formatNumber,
   CONNECTION_CONFIG_COOKIE,
   getConnectionConfigFromCookies,
 } from "@/lib/utils";
 import type { TypesenseCollection } from "@/types/typesense";
 import { Header } from "@/components/layout/Header";
+import { StatsGrid } from "@/components/dashboard/StatsGrid";
+import { RecentCollections } from "@/components/dashboard/RecentCollections";
+import { QuickActions } from "@/components/dashboard/QuickActions";
 
 async function getDashboardData(config: {
   host: string;
@@ -85,73 +78,6 @@ export default async function DashboardPage() {
   const { health, collections, totalDocuments, totalKeys, error } =
     await getDashboardData(activeConfig);
 
-  const displayHost = activeConfig?.host ?? "—";
-  const displayPort = activeConfig?.port ?? "—";
-  const displayProtocol = activeConfig?.protocol ?? "—";
-
-  const stats = [
-    {
-      label: "Server Status",
-      value: health.ok ? "Healthy" : "Unreachable",
-      icon: health.ok ? (
-        <CheckCircle className="h-6 w-6 text-green-500" />
-      ) : (
-        <XCircle className="h-6 w-6 text-red-500" />
-      ),
-      color: health.ok
-        ? "bg-green-50 border-green-200"
-        : "bg-red-50 border-red-200",
-      textColor: health.ok ? "text-green-700" : "text-red-700",
-    },
-    {
-      label: "Collections",
-      value: collections.length.toString(),
-      icon: <Database className="h-6 w-6 text-blue-500" />,
-      color: "bg-blue-50 border-blue-200",
-      textColor: "text-blue-700",
-      href: "/collections",
-    },
-    {
-      label: "Total Documents",
-      value: formatNumber(totalDocuments),
-      icon: <FileText className="h-6 w-6 text-purple-500" />,
-      color: "bg-purple-50 border-purple-200",
-      textColor: "text-purple-700",
-    },
-    {
-      label: "API Keys",
-      value: totalKeys.toString(),
-      icon: <Key className="h-6 w-6 text-orange-500" />,
-      color: "bg-orange-50 border-orange-200",
-      textColor: "text-orange-700",
-      href: "/keys",
-    },
-  ];
-
-  const quickLinks = [
-    {
-      href: "/collections",
-      label: "Manage Collections",
-      description: "View, create, and delete collections",
-      icon: <Database className="h-5 w-5" />,
-      color: "text-blue-600 bg-blue-50 group-hover:bg-blue-100",
-    },
-    {
-      href: "/keys",
-      label: "API Keys",
-      description: "Manage search and admin API keys",
-      icon: <Key className="h-5 w-5" />,
-      color: "text-orange-600 bg-orange-50 group-hover:bg-orange-100",
-    },
-    {
-      href: "/settings",
-      label: "Connection Settings",
-      description: "Configure your Typesense connection",
-      icon: <Activity className="h-5 w-5" />,
-      color: "text-gray-600 bg-gray-50 group-hover:bg-gray-100",
-    },
-  ];
-
   return (
     <div>
       <Header />
@@ -181,151 +107,16 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* Stats grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {stats.map((stat) => (
-            <div
-              key={stat.label}
-              className={`rounded-xl border p-5 ${stat.color} ${
-                "href" in stat ? "cursor-pointer" : ""
-              }`}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <span className={`text-sm font-medium ${stat.textColor}`}>
-                  {stat.label}
-                </span>
-                {stat.icon}
-              </div>
-              <p className={`text-2xl sm:text-3xl font-bold ${stat.textColor}`}>
-                {stat.value}
-              </p>
-              {"href" in stat && stat.href && (
-                <Link
-                  href={stat.href}
-                  className={`mt-2 text-xs ${stat.textColor} flex items-center gap-1 hover:underline`}
-                >
-                  View all <ArrowRight className="h-3 w-3" />
-                </Link>
-              )}
-            </div>
-          ))}
-        </div>
+        <StatsGrid
+          health={health}
+          collections={collections}
+          totalDocuments={totalDocuments}
+          totalKeys={totalKeys}
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Recent Collections */}
-          <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="text-base font-semibold text-gray-900">
-                Recent Collections
-              </h3>
-              <Link
-                href="/collections"
-                className="text-sm text-brand hover:text-brand-hover flex items-center gap-1"
-              >
-                View all <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-
-            {collections.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10 text-gray-400">
-                <Database className="h-12 w-12 mb-3 opacity-30" />
-                <p className="text-sm">No collections yet</p>
-                <Link
-                  href="/collections"
-                  className="mt-2 text-sm text-brand hover:underline"
-                >
-                  Create your first collection
-                </Link>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {collections.slice(0, 6).map((collection) => (
-                  <Link
-                    key={collection.name}
-                    href={`/collections/${collection.name}`}
-                    className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors group"
-                  >
-                    <div className="w-8 h-8 bg-brand/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Database className="h-4 w-4 text-brand" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 group-hover:text-brand truncate">
-                        {collection.name}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {collection.fields.length} fields
-                      </p>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <p className="text-sm font-semibold text-gray-900">
-                        {formatNumber(collection.num_documents)}
-                      </p>
-                      <p className="text-xs text-gray-500">docs</p>
-                    </div>
-                    <ArrowRight className="h-4 w-4 text-gray-300 group-hover:text-brand opacity-0 group-hover:opacity-100 transition-all" />
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Quick Links */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 className="text-base font-semibold text-gray-900 mb-5">
-              Quick Actions
-            </h3>
-            <div className="space-y-3">
-              {quickLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="group flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  <div
-                    className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${link.color}`}
-                  >
-                    {link.icon}
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900 text-sm group-hover:text-brand transition-colors">
-                      {link.label}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      {link.description}
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-            {/* Connection info */}
-            <div className="mt-6 pt-4 border-t border-gray-100">
-              <p className="text-xs font-medium text-gray-500 mb-2">
-                Connection
-              </p>
-              {activeConfig ? (
-                <div className="text-xs text-gray-600 space-y-1">
-                  <p>
-                    Host:{" "}
-                    <span className="font-mono">
-                      {displayHost}:{displayPort}
-                    </span>
-                  </p>
-                  <p>
-                    Protocol:{" "}
-                    <span className="font-mono">{displayProtocol}</span>
-                  </p>
-                </div>
-              ) : (
-                <p className="text-xs text-gray-400">
-                  Not connected —{" "}
-                  <Link href="/login" className="text-brand hover:underline">
-                    Log in
-                  </Link>
-                </p>
-              )}
-            </div>
-          </div>
+          <RecentCollections collections={collections} />
+          <QuickActions activeConfig={activeConfig} />
         </div>
       </div>
     </div>

@@ -9,6 +9,7 @@ import {
   EyeOff,
   Save,
   RefreshCw,
+  Download,
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/Button";
@@ -98,6 +99,23 @@ export function SettingsForm() {
     setApiKey("");
     setTestStatus("idle");
     success("Settings cleared — saved credentials removed from this browser");
+  };
+
+  const handleExport = () => {
+    const config = {
+      host: host.trim(),
+      port: parseInt(port, 10) || 8108,
+      protocol,
+      apiKey: apiKey.trim(),
+    };
+    const blob = new Blob([JSON.stringify(config, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `typesense-${config.host}-${config.port}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    success("Configuration exported");
   };
 
   const testStatusColors = {
@@ -216,6 +234,14 @@ export function SettingsForm() {
             <Button variant="primary" onClick={handleSave}>
               <Save className="h-4 w-4" />
               {saved ? "Saved!" : "Save Settings"}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleExport}
+              disabled={!host.trim() || !apiKey.trim()}
+            >
+              <Download className="h-4 w-4" />
+              Export Config
             </Button>
             <Button
               variant="ghost"

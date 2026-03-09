@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="640" viewBox="0 0 1100 640">
+  <defs>
+    <filter id="shadow" x="-2%" y="-2%" width="106%" height="110%">
+      <feDropShadow dx="0" dy="1" stdDeviation="3" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1100" height="640" fill="#f8fafc"/>
+
+  <!-- Sidebar -->
+  <rect x="0" y="0" width="220" height="640" fill="#0f172a"/>
+  <!-- Sidebar logo -->
+  <rect x="20" y="18" width="36" height="36" rx="10" fill="#e11d48"/>
+  <text x="66" y="42" fill="white" font-family="system-ui, sans-serif" font-size="15" font-weight="700">Typesense Admin</text>
+
+  <!-- Sidebar nav items -->
+  <rect x="12" y="76" width="196" height="36" rx="8" fill="rgba(255,255,255,0.1)"/>
+  <text x="48" y="100" fill="white" font-family="system-ui, sans-serif" font-size="13" font-weight="500">Dashboard</text>
+  <text x="48" y="140" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">Collections</text>
+  <text x="48" y="172" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">Synonyms</text>
+  <text x="48" y="204" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">API Keys</text>
+  <text x="48" y="236" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">Settings</text>
+
+  <!-- Server badge at bottom of sidebar -->
+  <rect x="12" y="590" width="196" height="36" rx="8" fill="rgba(255,255,255,0.05)"/>
+  <circle cx="28" cy="608" r="4" fill="#22c55e"/>
+  <text x="40" y="613" fill="#94a3b8" font-family="monospace" font-size="11">my-server.example.com</text>
+
+  <!-- Header -->
+  <rect x="220" y="0" width="880" height="56" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="248" y="34" fill="#0f172a" font-family="system-ui, sans-serif" font-size="17" font-weight="600">Dashboard</text>
+  <!-- Connection indicator -->
+  <rect x="920" y="16" width="160" height="26" rx="6" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1"/>
+  <circle cx="935" cy="29" r="4" fill="#22c55e"/>
+  <text x="946" y="34" fill="#15803d" font-family="monospace" font-size="11">my-server:443</text>
+
+  <!-- Stats Grid -->
+  <!-- Card 1: Server Status -->
+  <rect x="248" y="76" width="195" height="100" rx="12" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="268" y="102" fill="#6b7280" font-family="system-ui, sans-serif" font-size="12">Server Status</text>
+  <rect x="268" y="112" width="72" height="24" rx="12" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1"/>
+  <circle cx="282" cy="124" r="4" fill="#22c55e"/>
+  <text x="292" y="129" fill="#15803d" font-family="system-ui, sans-serif" font-size="12" font-weight="500">Healthy</text>
+  <text x="268" y="158" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="11">v30.1 • 142ms</text>
+
+  <!-- Card 2: Collections -->
+  <rect x="459" y="76" width="195" height="100" rx="12" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="479" y="102" fill="#6b7280" font-family="system-ui, sans-serif" font-size="12">Collections</text>
+  <text x="479" y="132" fill="#0f172a" font-family="system-ui, sans-serif" font-size="28" font-weight="700">8</text>
+  <text x="479" y="158" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="11">Across all collections</text>
+
+  <!-- Card 3: Total Documents -->
+  <rect x="670" y="76" width="195" height="100" rx="12" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="690" y="102" fill="#6b7280" font-family="system-ui, sans-serif" font-size="12">Total Documents</text>
+  <text x="690" y="132" fill="#0f172a" font-family="system-ui, sans-serif" font-size="28" font-weight="700">24,531</text>
+  <text x="690" y="158" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="11">Sum across collections</text>
+
+  <!-- Card 4: API Keys -->
+  <rect x="881" y="76" width="195" height="100" rx="12" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="901" y="102" fill="#6b7280" font-family="system-ui, sans-serif" font-size="12">API Keys</text>
+  <text x="901" y="132" fill="#0f172a" font-family="system-ui, sans-serif" font-size="28" font-weight="700">5</text>
+  <text x="901" y="158" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="11">Active keys</text>
+
+  <!-- Recent Collections section -->
+  <text x="248" y="212" fill="#0f172a" font-family="system-ui, sans-serif" font-size="15" font-weight="600">Recent Collections</text>
+
+  <!-- Collection cards row -->
+  <!-- Card 1 -->
+  <rect x="248" y="228" width="200" height="120" rx="12" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="268" y="254" fill="#0f172a" font-family="system-ui, sans-serif" font-size="14" font-weight="600">products</text>
+  <text x="268" y="274" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="11">Created Mar 1, 2026</text>
+  <text x="268" y="302" fill="#374151" font-family="system-ui, sans-serif" font-size="12">12,455 docs</text>
+  <text x="268" y="320" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="11">24 fields • 8 faceted</text>
+
+  <!-- Card 2 -->
+  <rect x="464" y="228" width="200" height="120" rx="12" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="484" y="254" fill="#0f172a" font-family="system-ui, sans-serif" font-size="14" font-weight="600">categories</text>
+  <text x="484" y="274" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="11">Created Feb 28, 2026</text>
+  <text x="484" y="302" fill="#374151" font-family="system-ui, sans-serif" font-size="12">342 docs</text>
+  <text x="484" y="320" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="11">6 fields • 3 faceted</text>
+
+  <!-- Card 3 -->
+  <rect x="680" y="228" width="200" height="120" rx="12" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="700" y="254" fill="#0f172a" font-family="system-ui, sans-serif" font-size="14" font-weight="600">blog_posts</text>
+  <text x="700" y="274" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="11">Created Feb 15, 2026</text>
+  <text x="700" y="302" fill="#374151" font-family="system-ui, sans-serif" font-size="12">1,204 docs</text>
+  <text x="700" y="320" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="11">12 fields • 4 faceted</text>
+
+  <!-- Quick Actions section -->
+  <text x="248" y="392" fill="#0f172a" font-family="system-ui, sans-serif" font-size="15" font-weight="600">Quick Actions</text>
+
+  <!-- Action buttons -->
+  <rect x="248" y="408" width="180" height="48" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="278" y="438" fill="#374151" font-family="system-ui, sans-serif" font-size="13" font-weight="500">Manage Collections</text>
+
+  <rect x="444" y="408" width="180" height="48" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="480" y="438" fill="#374151" font-family="system-ui, sans-serif" font-size="13" font-weight="500">API Keys</text>
+
+  <rect x="640" y="408" width="180" height="48" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="664" y="438" fill="#374151" font-family="system-ui, sans-serif" font-size="13" font-weight="500">Connection Settings</text>
+
+  <!-- Active Connection info box -->
+  <rect x="248" y="480" width="540" height="80" rx="12" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
+  <text x="268" y="506" fill="#1e40af" font-family="system-ui, sans-serif" font-size="13" font-weight="600">Active Connection</text>
+  <text x="268" y="528" fill="#3b82f6" font-family="monospace" font-size="12">https://my-server.example.com:443</text>
+  <text x="268" y="546" fill="#60a5fa" font-family="system-ui, sans-serif" font-size="11">Protocol: HTTPS • Port: 443 • Status: Healthy</text>
+</svg>

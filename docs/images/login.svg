@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="680" viewBox="0 0 900 680">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="115%" height="115%">
+      <feDropShadow dx="0" dy="4" stdDeviation="12" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="680" fill="url(#bg)"/>
+
+  <!-- Logo -->
+  <rect x="415" y="50" width="56" height="56" rx="16" fill="#e11d48"/>
+  <path d="M435 70 L451 86 L443 86 L443 94 L435 86 Z" fill="white" transform="translate(2,-2)"/>
+  <text x="443" y="130" text-anchor="middle" fill="white" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="700">Typesense Admin</text>
+  <text x="443" y="152" text-anchor="middle" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">Connect to your Typesense server</text>
+
+  <!-- Remembered config banner -->
+  <rect x="220" y="172" width="446" height="44" rx="12" fill="rgba(59,130,246,0.1)" stroke="rgba(59,130,246,0.3)" stroke-width="1"/>
+  <text x="248" y="198" fill="#93c5fd" font-family="system-ui, sans-serif" font-size="12">Last connected to </text>
+  <text x="363" y="198" fill="#bfdbfe" font-family="monospace" font-size="12" font-weight="600">my-server.example.com</text>
+  <text x="520" y="198" fill="#93c5fd" font-family="system-ui, sans-serif" font-size="12"> — 2 hours ago</text>
+
+  <!-- Card -->
+  <rect x="220" y="228" width="446" height="400" rx="16" fill="white" filter="url(#shadow)"/>
+
+  <!-- Protocol + Host row -->
+  <text x="248" y="266" fill="#374151" font-family="system-ui, sans-serif" font-size="13" font-weight="500">Protocol</text>
+  <rect x="248" y="274" width="100" height="38" rx="8" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="268" y="298" fill="#111827" font-family="system-ui, sans-serif" font-size="13">https</text>
+  <text x="328" y="298" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="10">▼</text>
+
+  <text x="362" y="266" fill="#374151" font-family="system-ui, sans-serif" font-size="13" font-weight="500">Host</text>
+  <rect x="362" y="274" width="276" height="38" rx="8" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="378" y="298" fill="#111827" font-family="system-ui, sans-serif" font-size="13">my-server.example.com</text>
+
+  <!-- Port -->
+  <text x="248" y="336" fill="#374151" font-family="system-ui, sans-serif" font-size="13" font-weight="500">Port</text>
+  <rect x="248" y="344" width="390" height="38" rx="8" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="268" y="368" fill="#111827" font-family="system-ui, sans-serif" font-size="13">443</text>
+
+  <!-- API Key -->
+  <text x="248" y="406" fill="#374151" font-family="system-ui, sans-serif" font-size="13" font-weight="500">API Key</text>
+  <rect x="248" y="414" width="390" height="38" rx="8" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="268" y="438" fill="#111827" font-family="system-ui, sans-serif" font-size="13">••••••••••••••••••••••••</text>
+  <!-- Eye icon -->
+  <circle cx="616" cy="433" r="8" fill="none" stroke="#9ca3af" stroke-width="1.5"/>
+  <circle cx="616" cy="433" r="3" fill="#9ca3af"/>
+
+  <!-- Import config -->
+  <text x="268" y="476" fill="#64748b" font-family="system-ui, sans-serif" font-size="11">↑ Import config file</text>
+  <text x="378" y="476" fill="#475569" font-family="system-ui, sans-serif" font-size="11">(.json exported from Settings)</text>
+
+  <!-- Connect button -->
+  <rect x="248" y="496" width="390" height="44" rx="10" fill="#e11d48"/>
+  <text x="443" y="524" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" font-size="15" font-weight="600">Reconnect</text>
+
+  <!-- Privacy note -->
+  <text x="443" y="568" text-anchor="middle" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="11">Credentials are stored only in your browser (cookie + localStorage).</text>
+  <text x="443" y="584" text-anchor="middle" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="11">Nothing is ever sent to a third-party server.</text>
+  <text x="443" y="604" text-anchor="middle" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="11">Remembered for <tspan fill="#6b7280" font-weight="500">30 days</tspan> — resets on each login.</text>
+
+  <!-- Footer -->
+  <text x="443" y="648" text-anchor="middle" fill="#475569" font-family="system-ui, sans-serif" font-size="11">Your data stays on your device. No accounts. No tracking.</text>
+</svg>
