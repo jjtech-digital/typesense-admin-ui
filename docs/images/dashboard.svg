@@ -17,10 +17,11 @@
   <!-- Sidebar nav items -->
   <rect x="12" y="76" width="196" height="36" rx="8" fill="rgba(255,255,255,0.1)"/>
   <text x="48" y="100" fill="white" font-family="system-ui, sans-serif" font-size="13" font-weight="500">Dashboard</text>
-  <text x="48" y="140" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">Collections</text>
-  <text x="48" y="172" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">Synonyms</text>
-  <text x="48" y="204" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">API Keys</text>
-  <text x="48" y="236" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">Settings</text>
+  <text x="48" y="140" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">Analytics</text>
+  <text x="48" y="172" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">Collections</text>
+  <text x="48" y="204" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">Synonyms</text>
+  <text x="48" y="236" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">API Keys</text>
+  <text x="48" y="268" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">Settings</text>
 
   <!-- Server badge at bottom of sidebar -->
   <rect x="12" y="590" width="196" height="36" rx="8" fill="rgba(255,255,255,0.05)"/>
