@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { useToast } from "@/components/ui/Toast";
 import { useConnectionConfig } from "@/hooks/useConnectionConfig";
+import { BackupManager } from "@/components/settings/BackupManager";
 
 export function SettingsForm() {
   const { getConfig, saveConfig, clearConfig } = useConnectionConfig();
@@ -128,7 +129,7 @@ export function SettingsForm() {
   return (
     <div>
       <Header />
-      <div className="p-4 sm:p-6 max-w-2xl space-y-4 sm:space-y-6">
+      <div className="p-4 sm:p-6 max-w-4xl space-y-4 sm:space-y-6">
         {/* Connection Settings */}
         <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
           <div className="flex items-center gap-3 mb-6">
@@ -252,6 +253,9 @@ export function SettingsForm() {
             </Button>
           </div>
         </div>
+
+        {/* Backup & Download */}
+        <BackupManager />
 
         {/* Info box */}
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 sm:p-6">
