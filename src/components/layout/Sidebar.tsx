@@ -14,6 +14,7 @@ import {
   X,
   GitMerge,
   LogOut,
+  BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useConnectionConfig } from "@/hooks/useConnectionConfig";
@@ -31,6 +32,11 @@ const navItems: NavItem[] = [
     label: "Dashboard",
     icon: <LayoutDashboard className="h-5 w-5" />,
     exact: true,
+  },
+  {
+    href: "/analytics",
+    label: "Analytics",
+    icon: <BarChart3 className="h-5 w-5" />,
   },
   {
     href: "/collections",
